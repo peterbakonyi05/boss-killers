@@ -72,11 +72,11 @@ static func spawn(kind: String, parent: Node3D, pos: Vector3, yaw: float,
 			# High prop: hangs from an iron arm sticking out of the wall.
 			var drop := rng.randf_range(0.5, 1.4)
 			_bracket(root, 0.8)
-			_chain(root, Vector3(0, 0, -0.8), drop)
+			chain(root, Vector3(0, 0, -0.8), drop)
 			ok = Build.model(root, "caged_hanging_light", Vector3(0, -drop, -0.8), Vector3(0, 90, 0), 1.3) != null
 		"chandelier":
 			_bracket(root, 1.0)
-			_chain(root, Vector3(0, 0, -1.0), 0.6)
+			chain(root, Vector3(0, 0, -1.0), 0.6)
 			ok = Build.model(root, "Chandelier_02", Vector3(0, -0.6 - 0.95 * 1.3, -1.0), Vector3.ZERO, 1.3) != null
 		"skull":
 			_skull(root, Vector3.ZERO, rng)
@@ -94,7 +94,7 @@ static func spawn(kind: String, parent: Node3D, pos: Vector3, yaw: float,
 			_cobweb(root, rng)
 		"chains":
 			for i in rng.randi_range(1, 3):
-				_chain(root, Vector3(rng.randf_range(-0.6, 0.6), 0, -0.05), rng.randf_range(1.2, 3.0))
+				chain(root, Vector3(rng.randf_range(-0.6, 0.6), 0, -0.05), rng.randf_range(1.2, 3.0))
 		"gravestone":
 			_gravestone(root, rng, theme)
 		"coffin":
@@ -204,7 +204,7 @@ static func _iron() -> StandardMaterial3D:
 
 
 ## A chain hanging down from top.
-static func _chain(parent: Node3D, top: Vector3, length: float) -> void:
+static func chain(parent: Node3D, top: Vector3, length: float) -> void:
 	var metal := _iron()
 	for i in int(length / 0.11):
 		Build.part(parent, Build.torus(0.025, 0.05), metal, top - Vector3(0, 0.06 + i * 0.11, 0),

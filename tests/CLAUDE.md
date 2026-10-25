@@ -7,7 +7,7 @@ Plain scenes that run checks and quit; no test framework. Each prints `PASS  ...
 |---|---|---|
 | `smoke_test.tscn` | headless, ~50 s | economy budget, nav connectivity, spells, shields, burn/freeze, lava, ice door, secrets, arenas (waves, gates, money take-back), team wipe/revive, items/portal, monster moves (roar, lunge, charge, boss summon), level completion |
 | `menu_test.tscn` | headless, seconds | title join + start, shop navigation and buying with simulated controller presses, focus recovery |
-| `screenshots.tscn` | window | gameplay PNGs (`01_start` … `17_prop_gallery`) into the folder given after `--` |
+| `screenshots.tscn` | window | gameplay PNGs (`01_start` … `18_monster_closeup`) into the folder given after `--` |
 | `menu_screenshots.tscn` | window | title, level complete, shop PNGs |
 
 Running safely:

@@ -84,6 +84,7 @@ var _model: Node3D
 var _body: Node3D
 var _arm_l: Node3D
 var _arm_r: Node3D
+var _wings: Array[Node3D] = []
 var _meshes: Array[MeshInstance3D] = []
 var _eye_mat: StandardMaterial3D
 var _flash_mat: StandardMaterial3D
@@ -162,11 +163,16 @@ func _add(mesh: Mesh, material: Material, pos: Vector3, rot := Vector3.ZERO, scl
 
 
 ## Body material with a faint glow so monsters are easy to spot in dark caves.
-func _skin(color: Color, roughness: float) -> StandardMaterial3D:
-	var m := Build.mat(color, roughness)
+## With a texture id (assets/textures/) the skin gets real detail.
+func _skin(color: Color, roughness: float, texture := "") -> StandardMaterial3D:
+	var m: StandardMaterial3D
+	if texture != "":
+		m = Build.pbr(texture, color, 2.5, true).duplicate()
+	else:
+		m = Build.mat(color, roughness)
 	m.emission_enabled = true
 	m.emission = color
-	m.emission_energy_multiplier = 0.35
+	m.emission_energy_multiplier = 0.25 if texture != "" else 0.35
 	m.rim_enabled = true
 	m.rim = 0.6
 	return m
@@ -180,8 +186,8 @@ func _eyes(y: float, z: float, spread: float, size: float, parent: Node3D = null
 
 
 func _build_imp() -> void:
-	var skin := _skin(body_color, 0.7)
-	var dark := Build.mat(body_color.darkened(0.6), 0.8)
+	var skin := _skin(body_color.lightened(0.15), 0.7, "leather_white")
+	var dark := _skin(body_color.darkened(0.55), 0.8, "leather_white")
 	var bone := Build.mat(Color(0.9, 0.85, 0.72), 0.5)
 	var ember := Build.glow(eye_color.lerp(Color(1.0, 0.3, 0.05), 0.5), 2.5)
 	# Hunched body leaning forward, with glowing cracks and spikes down the back
@@ -210,11 +216,25 @@ func _build_imp() -> void:
 	_add(Build.capsule(0.08, 0.45), dark, Vector3(0.15, 0.22, 0.05), Vector3(-15, 0, 0))
 	_add(Build.cylinder(0.04, 0.7, 0.015), dark, Vector3(0, 0.45, 0.45), Vector3(60, 0, 0))
 	_add(Build.cone(0.07, 0.15), bone, Vector3(0, 0.62, 0.76), Vector3(60, 0, 0))
-	# Ragged bat wings
-	var wing := Build.mat(body_color.darkened(0.4), 0.8)
+	# Pale belly and pointed ears
+	_add(Build.sphere(0.2), Build.mat(body_color.lightened(0.35), 0.8), Vector3(0, 0.72, -0.18), Vector3(-30, 0, 0), Vector3(1.0, 1.4, 0.6))
 	for side in [-1.0, 1.0]:
-		_add(Build.box(Vector3(0.55, 0.35, 0.03)), wing, Vector3(side * 0.38, 1.08, 0.3), Vector3(0, side * -30, side * -25))
-		_add(Build.box(Vector3(0.3, 0.25, 0.03)), wing, Vector3(side * 0.62, 0.9, 0.4), Vector3(0, side * -30, side * 20))
+		_add(Build.cone(0.06, 0.22), skin, Vector3(side * 0.24, 1.25, -0.2), Vector3(0, 0, side * -75))
+	# Bat wings: bony fingers with a thin skin between them, they flap while it moves
+	var wing := Build.mat(body_color.darkened(0.45), 0.8)
+	wing.cull_mode = BaseMaterial3D.CULL_DISABLED
+	for side in [-1.0, 1.0]:
+		var w := Build.pivot(_body, Vector3(side * 0.18, 1.08, 0.22))
+		w.rotation_degrees = Vector3(0, side * -25, 0)
+		_wings.append(w)
+		for k in 3:
+			var angle: float = side * (-35.0 + k * 30.0)
+			var finger := Build.pivot(w)
+			finger.rotation_degrees.z = angle
+			var length := 0.6 - k * 0.1
+			_add(Build.cylinder(0.018, length, 0.008), bone, Vector3(side * length * 0.5, 0, 0), Vector3(0, 0, side * -90), Vector3.ONE, finger)
+		_add(Build.box(Vector3(0.55, 0.38, 0.015)), wing, Vector3(side * 0.28, -0.05, 0.01), Vector3.ZERO, Vector3.ONE, w)
+		_add(Build.box(Vector3(0.3, 0.22, 0.015)), wing, Vector3(side * 0.46, -0.26, 0.01), Vector3(0, 0, side * 25), Vector3.ONE, w)
 	if ranged:
 		# Spitters have a glowing poison sac in the throat and an ember in the hand.
 		var poison := Build.glow(Color(0.6, 1.0, 0.2), 4.0)
@@ -223,8 +243,10 @@ func _build_imp() -> void:
 
 
 func _build_brute() -> void:
-	var stone := _skin(body_color, 0.95)
+	var stone := _skin(body_color.lightened(0.2), 0.95, "dark_rock")
 	var crack := Build.glow(Color(1.0, 0.4, 0.05), 3.0)
+	var iron := Build.pbr("rusty_metal_02", Color(0.5, 0.42, 0.4), 2.0, true).duplicate() as StandardMaterial3D
+	iron.metallic = 0.6
 	_add(Build.capsule(0.75, 1.7), stone, Vector3(0, 1.35, 0.1), Vector3(-15, 0, 0), Vector3(1.15, 1.0, 0.9))
 	_add(Build.box(Vector3(0.9, 0.06, 0.1)), crack, Vector3(0, 1.5, -0.6), Vector3(-10, 0, 15))
 	_add(Build.box(Vector3(0.6, 0.06, 0.1)), crack, Vector3(0.1, 1.15, -0.62), Vector3(-10, 0, -20))
@@ -247,14 +269,25 @@ func _build_brute() -> void:
 		_add(Build.capsule(0.28, 1.3), stone, Vector3(0, -0.55, -0.1), Vector3(10, 0, 0), Vector3.ONE, arm)
 		_add(Build.sphere(0.38), stone, Vector3(0, -1.25, -0.2), Vector3.ZERO, Vector3.ONE, arm)
 		_add(Build.box(Vector3(0.5, 0.05, 0.1)), crack, Vector3(0, -0.6, -0.36), Vector3.ZERO, Vector3.ONE, arm)
+	# Iron shackles with broken chains, a riveted shoulder plate and a belt
+	for arm in [_arm_l, _arm_r]:
+		_add(Build.cylinder(0.32, 0.22), iron, Vector3(0, -0.95, -0.15), Vector3(10, 0, 0), Vector3.ONE, arm)
+		Props.chain(arm, Vector3(0, -1.05, -0.15), 0.5)
+	_add(Build.sphere(0.5), iron, Vector3(-0.85, 2.0, 0.05), Vector3(0, 0, 20), Vector3(1.0, 0.55, 1.0))
+	for k in 4:
+		_add(Build.sphere(0.05), iron, Vector3(-0.85 + cos(k * 1.2) * 0.3, 2.2, sin(k * 1.2) * 0.3 - 0.1))
+	_add(Build.cylinder(0.72, 0.25), Build.pbr("brown_leather", Color(0.45, 0.35, 0.3), 2.0, true), Vector3(0, 0.75, 0.1), Vector3(-10, 0, 0), Vector3(1.1, 1.0, 0.85))
+	_add(Build.box(Vector3(0.3, 0.3, 0.1)), iron, Vector3(0, 0.75, -0.55))
 	_add(Build.capsule(0.3, 0.8), stone, Vector3(-0.4, 0.35, 0))
 	_add(Build.capsule(0.3, 0.8), stone, Vector3(0.4, 0.35, 0))
 	Build.light(_body, Color(1.0, 0.4, 0.1), 0.8, 3.0, Vector3(0, 1.4, -1.0))
 
 
 func _build_knight() -> void:
-	var armor := Build.mat(body_color, 0.4, 0.7)
-	var dark := Build.mat(body_color.darkened(0.5), 0.5, 0.6)
+	var armor := Build.pbr("rusty_metal_02", body_color.lightened(0.25), 1.5, true).duplicate() as StandardMaterial3D
+	armor.metallic = 0.75
+	var dark := Build.pbr("rusty_metal_02", body_color.darkened(0.35), 1.5, true).duplicate() as StandardMaterial3D
+	dark.metallic = 0.7
 	var red := Build.glow(Color(1.0, 0.15, 0.05), 3.5)
 	_add(Build.box(Vector3(1.6, 1.5, 0.9)), armor, Vector3(0, 2.3, 0))
 	_add(Build.box(Vector3(1.2, 0.5, 0.8)), dark, Vector3(0, 1.4, 0))
@@ -274,8 +307,15 @@ func _build_knight() -> void:
 			_add(Build.cone(0.1, 0.5), dark, Vector3(side * 0.95, 3.25, -0.3 + k * 0.3), Vector3(0, 0, side * -25))
 	_add(Build.box(Vector3(0.45, 1.2, 0.5)), dark, Vector3(-0.4, 0.6, 0))
 	_add(Build.box(Vector3(0.45, 1.2, 0.5)), dark, Vector3(0.4, 0.6, 0))
-	# Cape
-	_add(Build.box(Vector3(1.5, 2.4, 0.08)), Build.mat(Color(0.25, 0.02, 0.05), 0.9), Vector3(0, 1.8, 0.52), Vector3(8, 0, 0))
+	# Glowing lava cracks across the chest plate
+	for k in 4:
+		_add(Build.box(Vector3(0.5 - k * 0.08, 0.04, 0.03)), red, Vector3(-0.35 + k * 0.22, 2.0 + k * 0.25, -0.46), Vector3(0, 0, -30 + k * 25))
+	# Tattered cape: strips of different length
+	var cape := Build.pbr("cotton_jersey", Color(0.4, 0.04, 0.07), 2.0, true)
+	for k in 5:
+		var x := -0.6 + k * 0.3
+		var length := 2.4 - absf(sin(k * 2.3)) * 0.7
+		_add(Build.box(Vector3(0.3, length, 0.06)), cape, Vector3(x, 3.0 - length * 0.5, 0.52 + length * 0.07), Vector3(8, 0, x * -4.0))
 	_arm_l = Build.pivot(_body, Vector3(-1.05, 2.7, 0))
 	_arm_r = Build.pivot(_body, Vector3(1.05, 2.7, 0))
 	_add(Build.capsule(0.25, 1.3), armor, Vector3(0, -0.6, 0), Vector3.ZERO, Vector3.ONE, _arm_l)
@@ -284,7 +324,9 @@ func _build_knight() -> void:
 	var sword := Build.pivot(_arm_r, Vector3(0, -1.2, -0.2))
 	_add(Build.box(Vector3(0.12, 0.5, 0.12)), dark, Vector3(0, 0, 0), Vector3.ZERO, Vector3.ONE, sword)
 	_add(Build.box(Vector3(0.7, 0.1, 0.15)), dark, Vector3(0, 0, -0.1), Vector3(90, 0, 0), Vector3.ONE, sword)
-	_add(Build.box(Vector3(0.25, 0.08, 2.4)), Build.glow(Color(1.0, 0.3, 0.1), 2.5), Vector3(0, 0, -1.3), Vector3.ZERO, Vector3.ONE, sword)
+	_add(Build.box(Vector3(0.25, 0.08, 2.4)), dark, Vector3(0, 0, -1.3), Vector3.ZERO, Vector3.ONE, sword)
+	_add(Build.box(Vector3(0.12, 0.1, 2.2)), Build.glow(Color(1.0, 0.3, 0.1), 3.0), Vector3(0, 0, -1.35), Vector3.ZERO, Vector3.ONE, sword)
+	_add(Build.cone(0.13, 0.4), dark, Vector3(0, 0, -2.7), Vector3(-90, 0, 0), Vector3(1, 1, 0.35), sword)
 	Build.light(_body, Color(1.0, 0.2, 0.05), 2.0, 7.0, Vector3(0, 3.0, -1.0))
 
 
@@ -708,6 +750,9 @@ func _animate(delta: float, move: Vector3) -> void:
 	match look:
 		Look.IMP:
 			_body.position.y = absf(sin(_anim_time)) * 0.15 + 0.05
+			for i in _wings.size():
+				var side := -1.0 if i == 0 else 1.0
+				_wings[i].rotation.y = side * (-0.45 + sin(_anim_time * 2.0) * 0.5)
 		_:
 			_body.position.y = absf(sin(_anim_time * 0.6)) * 0.08
 			_body.rotation.z = sin(_anim_time * 0.6) * 0.04

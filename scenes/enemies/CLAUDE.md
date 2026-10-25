@@ -32,6 +32,6 @@ Rules of thumb:
 
 ## Look
 
-Models are built in `_build_imp/_brute/_knight` from `Build` primitives; `_add()`
+Models are built in `_build_imp/_brute/_knight` from `Build` primitives with CC0 textures (`_skin(color, roughness, texture)`); `_add()`
 registers meshes for hit-flash/slow overlays. Forward is −Z of `_model`. Keep shapes
-simple (graphics come last); scariness comes mostly from behaviour and glowing eyes.
+simple; imp wings (`_wings`) flap in `_animate`. Scariness comes mostly from behaviour and glowing eyes, keep eyes bright.

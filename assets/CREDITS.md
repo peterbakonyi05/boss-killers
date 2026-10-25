@@ -9,7 +9,7 @@ shrunk to 512 px to keep the repo small. Download script idea: `api.polyhaven.co
 | `assets/textures/brown_leather` | [Brown Leather](https://polyhaven.com/a/brown_leather) | Rob Tuytel |
 | `assets/textures/burned_ground_01` | [Burned Ground 01](https://polyhaven.com/a/burned_ground_01) | Rob Tuytel |
 | `assets/textures/dark_rock` | [Dark Rock](https://polyhaven.com/a/dark_rock) | Amal Kumar |
-| `assets/textures/denim_fabric_03` | [Denim Fabric 03](https://polyhaven.com/a/denim_fabric_03) | colormass, Rico Cilliers |
+| `assets/textures/cotton_jersey` | [Cotton Jersey](https://polyhaven.com/a/cotton_jersey) | colormass, Rico Cilliers |
 | `assets/textures/leather_white` | [Leather White](https://polyhaven.com/a/leather_white) | Rob Tuytel |
 | `assets/textures/monastery_stone_floor` | [Monastery Stone Floor](https://polyhaven.com/a/monastery_stone_floor) | Amal Kumar |
 | `assets/textures/mossy_stone_wall` | [Mossy Stone Wall](https://polyhaven.com/a/mossy_stone_wall) | Amal Kumar |

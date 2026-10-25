@@ -31,7 +31,7 @@ func _ready() -> void:
 	var wood := Build.pbr("wood_planks", Color(0.5, 0.35, 0.25), 3.0, false)
 	# Wooden handle wrapped in cloth, iron basket with glowing coals
 	Build.part(self, Build.cylinder(0.05, 0.7, 0.07), wood, Vector3(0, 0, 0))
-	Build.part(self, Build.cylinder(0.08, 0.12), Build.pbr("denim_fabric_03", Color(0.4, 0.3, 0.2), 4.0, false), Vector3(0, 0.25, 0))
+	Build.part(self, Build.cylinder(0.08, 0.12), Build.pbr("cotton_jersey", Color(0.4, 0.3, 0.2), 4.0, false), Vector3(0, 0.25, 0))
 	for k in 6:
 		var a := k * TAU / 6.0
 		Build.part(self, Build.box(Vector3(0.025, 0.22, 0.025)), iron, Vector3(cos(a) * 0.13, 0.42, sin(a) * 0.13), Vector3(sin(a) * 18.0, 0, -cos(a) * 18.0))
