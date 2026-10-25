@@ -6,5 +6,13 @@
 	{"id": "age", "question": "What goes up but never comes down?", "answers": ["A balloon", "Your age", "A bird"], "correct": 1},
 	{"id": "clock", "question": "What has hands but cannot clap?", "answers": ["A monkey", "A wizard", "A clock"], "correct": 2},
 	{"id": "needle", "question": "What has one eye but cannot see?", "answers": ["A needle", "A pirate", "A bat"], "correct": 0},
-	{"id": "bottle", "question": "What has a neck but no head?", "answers": ["A snake", "A bottle", "A ghost"], "correct": 1}
+	{"id": "bottle", "question": "What has a neck but no head?", "answers": ["A snake", "A bottle", "A ghost"], "correct": 1},
+	{"id": "map", "question": "I have rivers but no water, forests but no trees. What am I?", "answers": ["A map", "A desert", "A dream"], "correct": 0},
+	{"id": "shadow", "question": "I follow you all day, but in the dark I am gone. What am I?", "answers": ["A jaguar", "Your shadow", "A ghost"], "correct": 1},
+	{"id": "stamps", "question": "What can travel around the world while staying in a corner?", "answers": ["A spider", "A snail", "A stamp"], "correct": 2},
+	{"id": "sponge", "question": "I am full of holes but I can still hold water. What am I?", "answers": ["A sponge", "A net", "A bucket"], "correct": 0},
+	{"id": "letter_m", "question": "What comes once in a minute, twice in a moment, but never in a thousand years?", "answers": ["A blink", "The letter M", "A shooting star"], "correct": 1},
+	{"id": "candle", "question": "I get shorter the longer I live. What am I?", "answers": ["A tree", "A snake", "A candle"], "correct": 2},
+	{"id": "echo", "question": "I speak without a mouth and answer when you shout in the jungle. What am I?", "answers": ["An echo", "A parrot", "A monkey"], "correct": 0},
+	{"id": "keyboard", "question": "I have keys and space, but no rooms. What am I?", "answers": ["A castle", "A keyboard", "A treasure map"], "correct": 1}
 ]

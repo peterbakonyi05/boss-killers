@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/enemies/enemy.gd" id="1_enemy"]
+
+[node name="Crocodile" type="CharacterBody3D"]
+script = ExtResource("1_enemy")
+look = 5
+display_name = "Crocodile"
+base_health = 150.0
+base_damage = 16.0
+move_speed = 3.2
+attack_range = 2.2
+attack_cooldown = 1.8
+windup_time = 0.7
+aggro_range = 12.0
+money_size = "medium"
+body_color = Color(0.22, 0.28, 0.14, 1)
+eye_color = Color(1, 0.8, 0.1, 1)
+swim_leash = 8.0

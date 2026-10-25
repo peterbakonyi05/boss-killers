@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/enemies/enemy.gd" id="1_enemy"]
+
+[node name="Jaguar" type="CharacterBody3D"]
+script = ExtResource("1_enemy")
+look = 3
+display_name = "Shadow Jaguar"
+base_health = 55.0
+base_damage = 10.0
+move_speed = 6.2
+attack_range = 1.8
+attack_cooldown = 1.7
+windup_time = 0.5
+aggro_range = 16.0
+money_size = "small"
+body_color = Color(0.6, 0.42, 0.16, 1)
+eye_color = Color(1, 0.85, 0.15, 1)
+lunge_distance = 4.0
+strafe_speed = 3.8
+prowl = true

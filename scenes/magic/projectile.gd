@@ -203,7 +203,7 @@ func _steer(delta: float) -> void:
 	var best_d := 18.0
 	for node in get_tree().get_nodes_in_group("enemies"):
 		var e := node as Node3D
-		if e == null or e.get("dead") == true or e in _pierced:
+		if e == null or e.get("dead") == true or e.get("submerged") == true or e in _pierced:
 			continue
 		var to := e.global_position + Vector3(0, float(e.get("aim_height")), 0) - global_position
 		var d := to.length()

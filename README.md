@@ -39,12 +39,13 @@ Menus: D-pad to choose, Cross to press. In the shop, Options starts the next lev
 
 ## How the game works
 
-- **Teamwork puzzles:** the Ice Wizard freezes lava into bridges, the Fire Wizard
-  melts ice doors. Riddle stones give the Riddle Rune; the boss arena gives the Key.
+- **Teamwork puzzles:** the Ice Wizard freezes lava and rivers into bridges, the Fire
+  Wizard melts ice doors and burns thorn walls. Riddle stones give the Riddle Rune; the boss arena gives the Key.
   Both are needed to open the exit portal, and both wizards must step in.
 - **Fights:** path monsters, and arenas that lock their gates and send waves.
   Monsters telegraph their attacks (imps lunge, brutes and bosses charge, spitters
-  shoot). Fire burns, ice slows and freezes, and fire shatters frozen monsters.
+  shoot; in the jungle jaguars prowl and pounce, anacondas strike and sweep their
+  tails, crocodiles snap from the water and piranhas jump out of it). Fire burns, ice slows and freezes, and fire shatters frozen monsters.
 - **Magic:** every spell does something different (tier 2 unlocks after level 1):
 
   | Wizard | Spell | What it does |
@@ -60,26 +61,36 @@ Menus: D-pad to choose, Cross to press. In the shop, Options starts the next lev
 
   Shields: fire domes burn monsters that push against them, ice domes slow them.
 - **Falling:** a fallen wizard gets back up after a few seconds. If both fall,
-  the team goes back to the last checkpoint.
+  the team goes back to the last checkpoint. Falling into lava or piranha water
+  hurts and puts you back on safe ground.
 - **Money and shop:** monsters and treasure chests give team money. Between levels
   the shop sells upgrades; bigger magic costs more, so the team saves up.
 - **Secrets:** cracked walls, hidden ledges and secret ice walls hide treasure.
   The level complete screen shows how many were found.
 - Progress is saved to `user://save.json` after each level and after shopping.
 
-Only Level 1 ("Haunted Caves" style) is built so far. Later level numbers replay the
-newest built layout with stronger monsters. Levels get their look from a theme
-(`data/themes/`), so new styles like forest, swamp or moon are quick to add.
+Built levels:
+
+| Level | Title | Style | Boss |
+|---|---|---|---|
+| 1 | The Burning Caves | Haunted Caves | Demon Knight |
+| 2 | The Jungle of Shadows | Night Jungle: river, swamp boardwalk, piranha lagoon, temple ruins | Jungle Demon (roots burst up under the wizards, calls jaguars) |
+
+Later level numbers replay the newest built layout with stronger monsters. Levels get
+their look from a theme (`data/themes/`), so new styles like swamp or moon are quick to add.
 
 ## Tests
 
 ```sh
 # Gameplay smoke test (headless, ~50 s)
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tests/smoke_test.tscn
+# Level 2 (jungle) test (headless, ~40 s)
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tests/level_02_test.tscn
 # Menus with simulated controller presses (headless, a few seconds)
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tests/menu_test.tscn
 # Screenshots (needs a window; --always-on-top or macOS may stall it)
 /Applications/Godot.app/Contents/MacOS/Godot --always-on-top --path . res://tests/screenshots.tscn -- /tmp/shots
+/Applications/Godot.app/Contents/MacOS/Godot --always-on-top --path . res://tests/screenshots.tscn -- /tmp/shots level=2
 /Applications/Godot.app/Contents/MacOS/Godot --always-on-top --path . res://tests/menu_screenshots.tscn -- /tmp/shots
 ```
 
@@ -97,7 +108,7 @@ scenes/
   wizard/       Player wizard and camera
   enemies/      One monster script, one scene per monster type
   magic/        Projectiles, shields and ground effects (fire pool, frost patch)
-  level_parts/  Reusable level pieces (arena, gate, lava, doors, chests, ...)
+  level_parts/  Reusable level pieces (arena, gate, lava, water, doors, chests, ...)
   levels/       Level layouts
   ui/           HUD, overlay, pause, level complete, shop
 scripts/        Shared helpers: Build (shapes, textures, models), FX (particles), SpellVisuals,

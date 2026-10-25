@@ -5,7 +5,7 @@ Plain resources edited by hand or in the Godot inspector. Their classes live in
 the class with a `##` comment **and** to the `.tres` file.
 
 - `balance.tres` — enemy power per level, money per kill, wizard health/regen/revive,
-  lava damage, shop prices.
+  lava and water damage, shop prices.
 - `levels/level_NN.tres` — title, scene path, unlocked tier, riddle ids, required
   items, goal text. A level "exists" when this file exists.
 - `spells/<element>_<tier>.tres` — one magic set per element and tier (names,
@@ -32,6 +32,10 @@ upgrade per wizard**, and big magic must be saved up for over levels.
 - `tests/smoke_test.gd` `_check_economy()` computes the maximum from the level's
   monsters, arena waves and `treasure` chests and asserts this. Adding monsters,
   waves or chests changes the total — re-run it and retune `money_*` if it fails.
+- A perfect level 2 run is ~1341 money: ≥ one strong spell (900) and < two strong
+  spells minus a quick shield (1500), so with level 1 leftovers the team can save up
+  for exactly one big spell. Checked in `tests/level_02_test.gd` `_check_level_basics()`;
+  chests (140/160/180) are the easiest knob.
 - Arenas take back the money from a failed try on team wipe (no farming).
 - Enemy health/damage multiply by `level × enemy_power_per_level / 10`; money gets
   `+money_level_bonus` per level.

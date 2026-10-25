@@ -6,12 +6,16 @@ shrunk to 512 px to keep the repo small. Download script idea: `api.polyhaven.co
 
 | Folder | Asset | Author(s) |
 |---|---|---|
+| `assets/textures/bark_brown_02` | [Bark Brown 02](https://polyhaven.com/a/bark_brown_02) | Rob Tuytel |
 | `assets/textures/brown_leather` | [Brown Leather](https://polyhaven.com/a/brown_leather) | Rob Tuytel |
 | `assets/textures/burned_ground_01` | [Burned Ground 01](https://polyhaven.com/a/burned_ground_01) | Rob Tuytel |
 | `assets/textures/dark_rock` | [Dark Rock](https://polyhaven.com/a/dark_rock) | Amal Kumar |
 | `assets/textures/cotton_jersey` | [Cotton Jersey](https://polyhaven.com/a/cotton_jersey) | colormass, Rico Cilliers |
+| `assets/textures/forest_leaves_02` | [Forest Leaves 02](https://polyhaven.com/a/forest_leaves_02) | Rob Tuytel |
 | `assets/textures/leather_white` | [Leather White](https://polyhaven.com/a/leather_white) | Rob Tuytel |
 | `assets/textures/monastery_stone_floor` | [Monastery Stone Floor](https://polyhaven.com/a/monastery_stone_floor) | Amal Kumar |
+| `assets/textures/mossy_cobblestone` | [Mossy Cobblestone](https://polyhaven.com/a/mossy_cobblestone) | Sơn Nguyễn |
+| `assets/textures/mossy_rock` | [Mossy Rock](https://polyhaven.com/a/mossy_rock) | Rob Tuytel |
 | `assets/textures/mossy_stone_wall` | [Mossy Stone Wall](https://polyhaven.com/a/mossy_stone_wall) | Amal Kumar |
 | `assets/textures/rock_wall_08` | [Rock Wall 08](https://polyhaven.com/a/rock_wall_08) | Amal Kumar |
 | `assets/textures/rock_wall_10` | [Rock Wall 10](https://polyhaven.com/a/rock_wall_10) | Amal Kumar |

@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/enemies/enemy.gd" id="1_enemy"]
+
+[node name="Piranha" type="CharacterBody3D"]
+script = ExtResource("1_enemy")
+look = 6
+display_name = "Piranha"
+base_health = 20.0
+base_damage = 6.0
+move_speed = 4.5
+attack_range = 1.2
+attack_cooldown = 2.2
+windup_time = 0.6
+aggro_range = 9.0
+money_size = "small"
+body_color = Color(0.42, 0.47, 0.52, 1)
+eye_color = Color(1, 0.2, 0.1, 1)
+lunge_distance = 4.0
+swim_leash = 6.0

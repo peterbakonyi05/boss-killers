@@ -27,6 +27,8 @@ extends Resource
 @export var regen_per_second := 3.0
 ## Damage taken when falling into lava.
 @export var lava_damage := 20.0
+## Damage taken when falling into piranha water.
+@export var water_damage := 15.0
 
 @export_group("Shop")
 ## Price of the first upgrade of each kind of magic. Bigger magic costs more,

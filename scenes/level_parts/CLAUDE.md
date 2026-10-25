@@ -6,12 +6,13 @@ Configure them with exported vars on the instance in the level scene.
 
 | Part | What it does | Key exports / API |
 |---|---|---|
-| `Arena` | trigger closes child `Gate`s, spawns waves at child `Spawn*` markers, pulls the other wizard to `Entry`, opens gates when cleared, optional `reward_scene` | `wave_imps/spitters/brutes/knights` (one number per wave), `size`; `summon()`, `reset()` (takes back money on team wipe) |
+| `Arena` | trigger closes child `Gate`s, spawns waves at child `Spawn*` markers, pulls the other wizard to `Entry`, opens gates when cleared, optional `reward_scene` | `wave_imps/spitters/brutes/knights/jaguars/anacondas/demons` (one number per wave), `size`; `summon()`, `reset()` (takes back money on team wipe) |
 | `Gate` | iron bars rising from the floor | `close()`, `open()` |
 | `Checkpoint` | walk-through zone + brazier; respawn point when both wizards fall | `start_active`, `zone_width`, `brazier_offset` |
-| `LavaTrench` | lava gap; ice spells over it freeze a temporary bridge | `length`, `width`, `bridge_time`. Leave a floor gap of exactly `length` |
+| `LavaTrench` | lava gap; ice spells over it freeze a temporary bridge | `length`, `width`, `bridge_time`, `water` (river look, piranha bites). Leave a floor gap of exactly `length` |
 | `LavaPool` | lava lake with kill zone and solid bottom (under walkways) | `size`, `depth`; origin = lava surface |
-| `IceDoor` | ice wall only fire melts | `width/height/thickness`, `melt_health`, `show_sign` (false = secret) |
+| `WaterPool` | murky jungle water with solid bottom; only wizards "fall in" (`fall_in_water`), so crocodiles/piranhas live in it | `size`, `depth`; origin = water surface |
+| `IceDoor` | ice wall only fire melts, or a thorn wall fire burns | `width/height/thickness`, `melt_health`, `show_sign` (false = secret), `style` (`ice`/`thorns`) |
 | `BreakableWall` | cracked rock wall, any player spell breaks it (secret passages) | `width/height/thickness`, `break_health` |
 | `TreasureChest` | interact to open, gives money; counts as secret | `money`, `secret` |
 | `ItemPickup` (`key_pickup`) | floating item, touch to collect | `item_id` |

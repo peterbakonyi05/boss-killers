@@ -398,7 +398,7 @@ func _aim_target() -> Node3D:
 	var best_score := INF
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		var e := enemy as Node3D
-		if e == null or e.get("dead") == true:
+		if e == null or e.get("dead") == true or e.get("submerged") == true:
 			continue
 		var target := e.global_position + Vector3(0, float(e.get("aim_height")), 0)
 		var to := target - origin
@@ -577,17 +577,26 @@ func revive(full := false) -> void:
 
 ## Fell into lava: lose some health and pop back to where we last stood safely.
 func fall_in_lava() -> void:
+	_fall_in(GameState.balance.lava_damage, "Ouch! Hot lava!")
+
+
+## Fell into jungle water: the piranhas bite, then back to safe ground.
+func fall_in_water() -> void:
+	_fall_in(GameState.balance.water_damage, "Yikes! Piranhas!")
+
+
+func _fall_in(amount: float, message: String) -> void:
 	if _lava_guard > 0.0:
 		return
 	_lava_guard = 0.5
 	var was_down := is_down
 	_invulnerable = 0.0
-	take_damage(GameState.balance.lava_damage, Vector3.INF, true)
+	take_damage(amount, Vector3.INF, true)
 	teleport(last_safe_position + Vector3(0, 0.5, 0))
 	if not was_down and not is_down:
 		_invulnerable = 1.0
 	if hud:
-		hud.show_message("Ouch! Hot lava!", 1.5)
+		hud.show_message(message, 1.5)
 
 
 func teleport(pos: Vector3, safe := false) -> void:

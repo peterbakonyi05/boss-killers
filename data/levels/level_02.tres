@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LevelData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/level_data.gd" id="1_level"]
+
+[resource]
+script = ExtResource("1_level")
+level_number = 2
+title = "The Jungle of Shadows"
+scene_path = "res://scenes/levels/level_02.tscn"
+unlocks_tier = 3
+riddle_ids = PackedStringArray("map", "shadow", "stamps", "sponge", "letter_m", "candle", "echo", "keyboard")
+required_items = PackedStringArray("key", "rune")
+goal_text = "Beat the JUNGLE DEMON for the KEY and solve the RIDDLE to open the portal!"

@@ -121,6 +121,30 @@ static func lava_material() -> StandardMaterial3D:
 	return m
 
 
+## Dark, murky jungle water with slow ripples (move uv1_offset every frame).
+static func water_material() -> StandardMaterial3D:
+	var noise := FastNoiseLite.new()
+	noise.frequency = 0.05
+	var tex := NoiseTexture2D.new()
+	tex.noise = noise
+	tex.seamless = true
+	tex.as_normal_map = true
+	tex.bump_strength = 4.0
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.05, 0.13, 0.1, 0.92)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.roughness = 0.08
+	m.metallic_specular = 0.9
+	m.normal_enabled = true
+	m.normal_texture = tex
+	m.normal_scale = 0.6
+	m.emission_enabled = true
+	m.emission = Color(0.04, 0.12, 0.08)
+	m.emission_energy_multiplier = 0.5
+	m.uv1_scale = Vector3(2, 2, 2)
+	return m
+
+
 static func sphere(radius: float) -> SphereMesh:
 	var m := SphereMesh.new()
 	m.radius = radius

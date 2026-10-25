@@ -1,0 +1,1234 @@
+[gd_scene load_steps=25 format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/level.gd" id="1_level"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/checkpoint.tscn" id="2_cp"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/arena.tscn" id="3_arena"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/gate.tscn" id="4_gate"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/lava_trench.tscn" id="5_trench"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/ice_door.tscn" id="6_door"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/key_pickup.tscn" id="7_key"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/riddle_stone.tscn" id="8_riddle"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/exit_portal.tscn" id="9_portal"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/torch.tscn" id="10_torch"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/jaguar.tscn" id="11_jaguar"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/anaconda.tscn" id="12_anaconda"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/crocodile.tscn" id="13_croc"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/piranha.tscn" id="14_piranha"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/breakable_wall.tscn" id="15_breakable"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/treasure_chest.tscn" id="16_chest"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/water_pool.tscn" id="17_water"]
+[ext_resource type="Resource" path="res://data/themes/night_jungle.tres" id="18_theme"]
+[ext_resource type="Material" path="res://data/surfaces/wall.tres" id="19_wall"]
+[ext_resource type="Material" path="res://data/surfaces/floor.tres" id="20_floor"]
+[ext_resource type="Material" path="res://data/surfaces/arena_floor.tres" id="21_arena_floor"]
+[ext_resource type="Material" path="res://data/surfaces/stone.tres" id="22_stone"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/prop.tscn" id="23_prop"]
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_level"]
+geometry_parsed_geometry_type = 1
+agent_radius = 0.75
+agent_max_climb = 0.25
+agent_max_slope = 40.0
+
+[node name="Level02" type="Node3D"]
+script = ExtResource("1_level")
+theme = ExtResource("18_theme")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="Nav" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_level")
+
+[node name="Geometry" type="Node3D" parent="Nav"]
+
+[node name="FloorStart" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -7)
+size = Vector3(16, 1, 14)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="StartWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3, -6.5)
+size = Vector3(1, 8, 15)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="StartWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3, -6.5)
+size = Vector3(1, 8, 15)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="StartWallBack" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0.5)
+size = Vector3(18, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="StartFrontL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 3, -14)
+size = Vector3(4, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="StartFrontR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 3, -14)
+size = Vector3(4, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorTrail" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -29)
+size = Vector3(10, 1, 30)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="TrailWallL1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 3, -21.25)
+size = Vector3(1, 8, 14.5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="TrailWallL2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 3, -37.75)
+size = Vector3(1, 8, 12.5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="TrailWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 3, -29)
+size = Vector3(1, 8, 30)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorSecretRuin" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, -0.5, -30)
+size = Vector3(8, 1, 8)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="SecretRuinWallBack" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.5, 3, -30)
+size = Vector3(1, 8, 10)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="SecretRuinWallA" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 3, -25.5)
+size = Vector3(8, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="SecretRuinWallB" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 3, -34.5)
+size = Vector3(8, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="RiverInL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 3, -44)
+size = Vector3(6, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="RiverInR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 3, -44)
+size = Vector3(6, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="RiverWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.5, 3, -55)
+size = Vector3(1, 8, 22)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="RiverWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, 3, -55)
+size = Vector3(1, 8, 22)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="RiverBankNear" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -46)
+size = Vector3(20, 1, 4)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="RiverBridge" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -56)
+size = Vector3(3, 1, 16)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="RiverBridgeRest" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -56)
+size = Vector3(6, 1, 3)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="RiverBankFar" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -65)
+size = Vector3(20, 1, 2)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="Arena1InL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3, -66)
+size = Vector3(9, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="Arena1InR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3, -66)
+size = Vector3(9, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="Arena1OutL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3, -92)
+size = Vector3(9, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="Arena1OutR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3, -92)
+size = Vector3(9, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorArena1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -79)
+size = Vector3(24, 1, 26)
+material = ExtResource("21_arena_floor")
+use_collision = true
+
+[node name="Arena1WallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 3, -79)
+size = Vector3(1, 8, 26)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="Arena1WallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 3, -79)
+size = Vector3(1, 8, 26)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="SwampWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 3, -104.5)
+size = Vector3(1, 8, 25)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="SwampWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 3, -104.5)
+size = Vector3(1, 8, 25)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="SwampOutL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 3, -117)
+size = Vector3(8, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="SwampOutR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 3, -117)
+size = Vector3(8, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="SwampBank" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -93.5)
+size = Vector3(22, 1, 3)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="Boardwalk1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -99)
+size = Vector3(4, 1, 8)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="Boardwalk2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, -0.5, -105)
+size = Vector3(10, 1, 4)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="Boardwalk3" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -0.5, -110)
+size = Vector3(4, 1, 6)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="Boardwalk4" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.5, -115)
+size = Vector3(12, 1, 4)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="TrenchWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 3, -122.5)
+size = Vector3(1, 8, 11)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="TrenchWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 3, -122.5)
+size = Vector3(1, 8, 11)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorAfterTrench" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -125.5)
+size = Vector3(8, 1, 5)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="Arena2InL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3, -128)
+size = Vector3(9, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="Arena2InR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3, -128)
+size = Vector3(9, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="Arena2OutL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3, -156)
+size = Vector3(9, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="Arena2OutR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3, -156)
+size = Vector3(9, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorArena2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -142)
+size = Vector3(24, 1, 28)
+material = ExtResource("21_arena_floor")
+use_collision = true
+
+[node name="Arena2WallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 3, -142)
+size = Vector3(1, 8, 28)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="Arena2WallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 3, -142)
+size = Vector3(1, 8, 28)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorTemple" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -167)
+size = Vector3(10, 1, 22)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="TempleWallL1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 3, -158.5)
+size = Vector3(1, 8, 5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="TempleWallL2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 3, -167)
+size = Vector3(1, 8, 4)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="TempleWallL3" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 3, -175.5)
+size = Vector3(1, 8, 5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveL1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, -0.5, -163)
+size = Vector3(4, 1, 4)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="AlcoveBackL1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 3, -163)
+size = Vector3(1, 8, 5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveSideAL1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.75, 3, -160.5)
+size = Vector3(4.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveSideBL1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.75, 3, -165.5)
+size = Vector3(4.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveL2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, -0.5, -171)
+size = Vector3(4, 1, 4)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="AlcoveBackL2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 3, -171)
+size = Vector3(1, 8, 5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveSideAL2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.75, 3, -168.5)
+size = Vector3(4.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveSideBL2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.75, 3, -173.5)
+size = Vector3(4.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="TempleWallR1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 3, -158.5)
+size = Vector3(1, 8, 5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="TempleWallR2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 3, -167)
+size = Vector3(1, 8, 4)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="TempleWallR3" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 3, -175.5)
+size = Vector3(1, 8, 5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveR1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -0.5, -163)
+size = Vector3(4, 1, 4)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="AlcoveBackR1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.5, 3, -163)
+size = Vector3(1, 8, 5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveSideAR1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.75, 3, -160.5)
+size = Vector3(4.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveSideBR1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.75, 3, -165.5)
+size = Vector3(4.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveR2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -0.5, -171)
+size = Vector3(4, 1, 4)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="AlcoveBackR2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.5, 3, -171)
+size = Vector3(1, 8, 5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveSideAR2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.75, 3, -168.5)
+size = Vector3(4.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="AlcoveSideBR2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.75, 3, -173.5)
+size = Vector3(4.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="LagoonInL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 3, -178)
+size = Vector3(8, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="LagoonInR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 3, -178)
+size = Vector3(8, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="LagoonOutL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 3, -226)
+size = Vector3(6, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="LagoonOutR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 3, -226)
+size = Vector3(6, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="LagoonWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 3, -202)
+size = Vector3(1, 8, 48)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="LagoonWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 3, -202)
+size = Vector3(1, 8, 48)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="LagoonBankNear" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -179.5)
+size = Vector3(24, 1, 3)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="LagoonRock1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -185)
+size = Vector3(4, 1, 4)
+material = ExtResource("22_stone")
+use_collision = true
+
+[node name="LagoonRock2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, -0.5, -191.5)
+size = Vector3(4, 1, 4)
+material = ExtResource("22_stone")
+use_collision = true
+
+[node name="LagoonRock3" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, -0.5, -198)
+size = Vector3(4, 1, 4)
+material = ExtResource("22_stone")
+use_collision = true
+
+[node name="LagoonRock4" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, -0.5, -204.5)
+size = Vector3(4, 1, 4)
+material = ExtResource("22_stone")
+use_collision = true
+
+[node name="LagoonRock5" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -211)
+size = Vector3(4, 1, 4)
+material = ExtResource("22_stone")
+use_collision = true
+
+[node name="LagoonRock6" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, -0.5, -217.5)
+size = Vector3(4, 1, 4)
+material = ExtResource("22_stone")
+use_collision = true
+
+[node name="LagoonBankFar" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -224)
+size = Vector3(24, 1, 4)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="SecretStone" type="CSGCylinder3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, -1, -210.5)
+radius = 0.9
+height = 3
+sides = 9
+material = ExtResource("22_stone")
+use_collision = true
+
+[node name="SecretIsland" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, 0.5, -214.75)
+size = Vector3(3, 1, 3.5)
+material = ExtResource("22_stone")
+use_collision = true
+
+[node name="FloorShrine" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -233)
+size = Vector3(14, 1, 14)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="ShrineWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 3, -233)
+size = Vector3(1, 8, 14)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="ShrineWallR1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 3, -228.75)
+size = Vector3(1, 8, 5.5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="ShrineWallR2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 3, -237.25)
+size = Vector3(1, 8, 5.5)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="ShrineOutL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3, -240)
+size = Vector3(4, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="ShrineOutR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 3, -240)
+size = Vector3(4, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorHiddenShrine" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, -0.5, -233)
+size = Vector3(7, 1, 8)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="HiddenShrineBack" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5, 3, -233)
+size = Vector3(1, 8, 10)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="HiddenShrineA" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.25, 3, -228.5)
+size = Vector3(6.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="HiddenShrineB" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.25, 3, -237.5)
+size = Vector3(6.5, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorThornGate" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -243)
+size = Vector3(8, 1, 6)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="ThornGateWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 3, -243)
+size = Vector3(1, 8, 6)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="ThornGateWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 3, -243)
+size = Vector3(1, 8, 6)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="BigArenaInL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 3, -246)
+size = Vector3(15, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="BigArenaInR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 3, -246)
+size = Vector3(15, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="BigArenaOutL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 3, -296)
+size = Vector3(15, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="BigArenaOutR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 3, -296)
+size = Vector3(15, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorBigArena" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -271)
+size = Vector3(36, 1, 50)
+material = ExtResource("21_arena_floor")
+use_collision = true
+
+[node name="BigArenaWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.5, 3, -271)
+size = Vector3(1, 8, 50)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="BigArenaWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.5, 3, -271)
+size = Vector3(1, 8, 50)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="FloorPortal" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -305)
+size = Vector3(14, 1, 18)
+material = ExtResource("20_floor")
+use_collision = true
+
+[node name="PortalWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 3, -305)
+size = Vector3(1, 8, 18)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="PortalWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 3, -305)
+size = Vector3(1, 8, 18)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="PortalWallBack" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -314.5)
+size = Vector3(16, 8, 1)
+material = ExtResource("19_wall")
+use_collision = true
+
+[node name="Torches" type="Node3D" parent="."]
+
+[node name="Checkpoints" type="Node3D" parent="."]
+
+[node name="PathMonsters" type="Node3D" parent="."]
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="CheckpointStart" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+zone_width = 16
+brazier_offset = Vector3(-6, 0, 0)
+start_active = true
+
+[node name="WelcomeSign" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.6, -12.4)
+pixel_size = 0.01
+modulate = Color(0.75, 1, 0.55, 1)
+outline_modulate = Color(0, 0, 0, 0.9)
+text = "The Jungle of Shadows
+Stay out of the water... piranhas!"
+font_size = 56
+outline_size = 12
+
+[node name="StartTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7, 2, -3)
+
+[node name="StartTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.7, 2, -9)
+
+[node name="CrackedWall" parent="." instance=ExtResource("15_breakable")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -5.5, 0, -30)
+width = 3.0
+height = 7.0
+
+[node name="ChestRuin" parent="." instance=ExtResource("16_chest")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -11.5, 0, -30)
+money = 140
+
+[node name="SecretTorch" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.7, 2, -27.5)
+
+[node name="Jaguar1" parent="PathMonsters" instance=ExtResource("11_jaguar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -22)
+
+[node name="Jaguar2" parent="PathMonsters" instance=ExtResource("11_jaguar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, -35)
+
+[node name="CheckpointBeforeRiver" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -41)
+zone_width = 10
+brazier_offset = Vector3(-3.5, 0, 0)
+
+[node name="TrailTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7, 2, -18)
+
+[node name="TrailTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.7, 2, -26)
+
+[node name="TrailTorch3" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7, 2, -34)
+
+[node name="RiverWater" parent="." instance=ExtResource("17_water")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, -56)
+size = Vector2(20, 16)
+
+[node name="RiverPiranha1" parent="PathMonsters" instance=ExtResource("14_piranha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -0.6, -51.5)
+
+[node name="RiverPiranha2" parent="PathMonsters" instance=ExtResource("14_piranha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -0.6, -53)
+
+[node name="RiverPiranha3" parent="PathMonsters" instance=ExtResource("14_piranha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, -0.6, -59.5)
+
+[node name="RiverPiranha4" parent="PathMonsters" instance=ExtResource("14_piranha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -0.6, -61.5)
+
+[node name="RiverTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.7, 2.6, -46)
+energy = 3.0
+light_range = 14.0
+
+[node name="RiverTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.7, 2.6, -64)
+energy = 3.0
+light_range = 14.0
+
+[node name="Arena1" parent="." instance=ExtResource("3_arena")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -79)
+arena_name = "Jaguar Den"
+size = Vector3(24, 6, 26)
+wave_imps = PackedInt32Array()
+wave_spitters = PackedInt32Array()
+wave_brutes = PackedInt32Array()
+wave_knights = PackedInt32Array()
+wave_jaguars = PackedInt32Array(3, 4, 3)
+wave_anacondas = PackedInt32Array(0, 0, 1)
+
+[node name="GateIn" parent="Arena1" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 13)
+
+[node name="GateOut" parent="Arena1" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -13)
+
+[node name="Entry" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 9.5)
+
+[node name="Spawn1" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -9)
+
+[node name="Spawn2" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
+
+[node name="Spawn3" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -9)
+
+[node name="Spawn4" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, 0)
+
+[node name="Spawn5" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
+
+[node name="Spawn6" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.6)
+
+[node name="Arena1Torch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -70)
+energy = 3.0
+light_range = 14.0
+shadows = true
+
+[node name="Arena1Torch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -70)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="Arena1Torch3" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -88)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="Arena1Torch4" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -88)
+energy = 3.0
+light_range = 14.0
+shadows = true
+
+[node name="SwampWater" parent="." instance=ExtResource("17_water")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, -106)
+size = Vector2(22, 22)
+
+[node name="Croc1" parent="PathMonsters" instance=ExtResource("13_croc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, -0.6, -100)
+
+[node name="Croc2" parent="PathMonsters" instance=ExtResource("13_croc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, -0.6, -99)
+
+[node name="Croc3" parent="PathMonsters" instance=ExtResource("13_croc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, -0.6, -110.5)
+
+[node name="CheckpointSwamp" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -93.5)
+zone_width = 8
+brazier_offset = Vector3(3, 0, 0)
+
+[node name="SwampTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.7, 2.6, -96)
+energy = 3.0
+light_range = 14.0
+
+[node name="SwampTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.7, 2.6, -105)
+energy = 3.0
+light_range = 14.0
+
+[node name="SwampTorch3" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.7, 2.6, -114)
+energy = 3.0
+light_range = 14.0
+
+[node name="RiverTrench" parent="." instance=ExtResource("5_trench")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -120)
+length = 6.0
+bridge_time = 14.0
+water = true
+
+[node name="Arena2" parent="." instance=ExtResource("3_arena")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -142)
+arena_name = "Serpent Pit"
+size = Vector3(24, 6, 28)
+wave_imps = PackedInt32Array()
+wave_spitters = PackedInt32Array()
+wave_brutes = PackedInt32Array()
+wave_knights = PackedInt32Array()
+wave_jaguars = PackedInt32Array(2, 2, 3)
+wave_anacondas = PackedInt32Array(1, 1, 2)
+
+[node name="GateIn" parent="Arena2" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 14)
+
+[node name="GateOut" parent="Arena2" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
+
+[node name="Entry" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 10.5)
+
+[node name="Spawn1" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -10)
+
+[node name="Spawn2" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -11)
+
+[node name="Spawn3" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -10)
+
+[node name="Spawn4" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, 0)
+
+[node name="Spawn5" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
+
+[node name="Spawn6" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+
+[node name="Arena2Torch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -132)
+energy = 3.0
+light_range = 14.0
+shadows = true
+
+[node name="Arena2Torch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -132)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="Arena2Torch3" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -152)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="Arena2Torch4" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -152)
+energy = 3.0
+light_range = 14.0
+shadows = true
+
+[node name="CheckpointTemple" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -158.5)
+zone_width = 10
+brazier_offset = Vector3(-3.5, 0, 0)
+
+[node name="AmbushJaguar1" parent="PathMonsters" instance=ExtResource("11_jaguar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, -163)
+
+[node name="AmbushJaguar2" parent="PathMonsters" instance=ExtResource("11_jaguar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, -163.5)
+
+[node name="AmbushJaguar3" parent="PathMonsters" instance=ExtResource("11_jaguar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0, -171)
+
+[node name="AmbushJaguar4" parent="PathMonsters" instance=ExtResource("11_jaguar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, -171.5)
+
+[node name="TempleAnaconda" parent="PathMonsters" instance=ExtResource("12_anaconda")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -175)
+
+[node name="TempleTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7, 2, -159)
+
+[node name="TempleTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.7, 2, -167)
+
+[node name="TempleTorch3" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7, 2, -175)
+
+[node name="LagoonWater" parent="." instance=ExtResource("17_water")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, -201.5)
+size = Vector2(24, 41)
+
+[node name="ChestIsland" parent="." instance=ExtResource("16_chest")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 10.5, 1, -215)
+money = 160
+
+[node name="LagoonPiranha1" parent="PathMonsters" instance=ExtResource("14_piranha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, -0.6, -188)
+
+[node name="LagoonPiranha2" parent="PathMonsters" instance=ExtResource("14_piranha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -0.6, -194)
+
+[node name="LagoonPiranha3" parent="PathMonsters" instance=ExtResource("14_piranha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.6, -201)
+
+[node name="LagoonPiranha4" parent="PathMonsters" instance=ExtResource("14_piranha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -0.6, -207)
+
+[node name="LagoonPiranha5" parent="PathMonsters" instance=ExtResource("14_piranha")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, -0.6, -208)
+
+[node name="LagoonCroc1" parent="PathMonsters" instance=ExtResource("13_croc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -0.6, -214.5)
+
+[node name="LagoonCroc2" parent="PathMonsters" instance=ExtResource("13_croc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, -0.6, -220)
+
+[node name="CheckpointLagoon" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -179.5)
+zone_width = 10
+brazier_offset = Vector3(4, 0, 0)
+
+[node name="LagoonTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -184)
+energy = 3.0
+light_range = 14.0
+
+[node name="LagoonTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -196)
+energy = 3.0
+light_range = 14.0
+
+[node name="LagoonTorch3" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -208)
+energy = 3.0
+light_range = 14.0
+
+[node name="LagoonTorch4" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -220)
+energy = 3.0
+light_range = 14.0
+
+[node name="SecretThorns" parent="." instance=ExtResource("6_door")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 7.5, 0, -233)
+width = 3.0
+height = 7.0
+thickness = 1.0
+melt_health = 40.0
+show_sign = false
+style = "thorns"
+
+[node name="ChestShrine" parent="." instance=ExtResource("16_chest")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 12.5, 0, -233)
+money = 180
+
+[node name="RiddleStone" parent="." instance=ExtResource("8_riddle")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, -233)
+
+[node name="CheckpointShrine" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -228)
+zone_width = 14
+brazier_offset = Vector3(-5, 0, 0)
+
+[node name="ShrineTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.7, 2, -230)
+
+[node name="ShrineTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7, 2, -237.5)
+
+[node name="HiddenShrineTorch" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.7, 2, -230.5)
+
+[node name="ThornDoor" parent="." instance=ExtResource("6_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -241.5)
+style = "thorns"
+height = 7.0
+
+[node name="CheckpointBeforeBoss" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -244.5)
+zone_width = 8
+brazier_offset = Vector3(3, 0, 0)
+
+[node name="BigArena" parent="." instance=ExtResource("3_arena")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -271)
+arena_name = "Heart of the Jungle"
+size = Vector3(36, 6, 50)
+wave_imps = PackedInt32Array()
+wave_spitters = PackedInt32Array()
+wave_brutes = PackedInt32Array()
+wave_knights = PackedInt32Array()
+wave_jaguars = PackedInt32Array(4, 3, 2)
+wave_anacondas = PackedInt32Array(0, 2, 0)
+wave_demons = PackedInt32Array(0, 0, 1)
+reward_scene = ExtResource("7_key")
+
+[node name="GateIn" parent="BigArena" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 25)
+
+[node name="GateOut" parent="BigArena" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -25)
+
+[node name="Entry" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 21.5)
+
+[node name="Spawn1" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -21)
+
+[node name="Spawn2" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -22)
+
+[node name="Spawn3" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -21)
+
+[node name="Spawn4" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 0)
+
+[node name="Spawn5" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 0)
+
+[node name="Spawn6" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8.4)
+
+[node name="BigArenaTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.7, 2.6, -252)
+energy = 3.0
+light_range = 16.0
+shadows = true
+
+[node name="BigArenaTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.7, 2.6, -252)
+energy = 3.0
+light_range = 16.0
+shadows = false
+
+[node name="BigArenaTorch3" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.7, 2.6, -271)
+energy = 3.0
+light_range = 16.0
+shadows = false
+
+[node name="BigArenaTorch4" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.7, 2.6, -271)
+energy = 3.0
+light_range = 16.0
+shadows = true
+
+[node name="BigArenaTorch5" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.7, 2.6, -290)
+energy = 3.0
+light_range = 16.0
+shadows = false
+
+[node name="BigArenaTorch6" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.7, 2.6, -290)
+energy = 3.0
+light_range = 16.0
+shadows = false
+
+[node name="ExitPortal" parent="." instance=ExtResource("9_portal")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -308)
+
+[node name="PortalTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.7, 2, -300)
+
+[node name="PortalTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7, 2, -300)
+
+[node name="GateTotemL" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0, -13)
+kind = "skull_totem"
+variant = 1
+
+[node name="GateTotemR" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0, -13)
+kind = "skull_totem"
+variant = 2
+
+[node name="RuinPillarA" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -6, 0, -1.5)
+kind = "ruin_pillar"
+variant = 3
+
+[node name="RuinPillarB" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 6, 0, -1.5)
+kind = "ruin_pillar"
+variant = 4
+
+[node name="SecretRuinSkulls" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -12, 0, -27)
+kind = "skull_pile"
+variant = 5
+
+[node name="SecretRuinPillar" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -12, 0, -33)
+kind = "ruin_pillar"
+variant = 6
+
+[node name="ShrinePillarA" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -6, 0, -227.5)
+kind = "ruin_pillar"
+variant = 7
+
+[node name="ShrinePillarB" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -6, 0, -238.5)
+kind = "ruin_pillar"
+variant = 8
+
+[node name="ShrineFlowers" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 5.6, 0, -230.5)
+kind = "glow_flowers"
+variant = 9
+
+[node name="HiddenShrineTotem" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 13.6, 0, -235.5)
+kind = "skull_totem"
+variant = 10
+
+[node name="PortalTreeL" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -6.4, 0, -311)
+kind = "jungle_tree"
+variant = 11
+
+[node name="PortalTreeR" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 6.4, 0, -311)
+kind = "jungle_tree"
+variant = 12
+
+[node name="PortalBones" parent="Props" instance=ExtResource("23_prop")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -4.5, 0, -302)
+kind = "skull_pile"
+variant = 13
