@@ -17,7 +17,9 @@ Configure them with exported vars on the instance in the level scene.
 | `ItemPickup` (`key_pickup`) | floating item, touch to collect | `item_id` |
 | `RiddleStone` | interact → riddle UI; correct answer gives `item_id` | `riddle_ids` (empty = level's list) |
 | `ExitPortal` | opens when `Game.has_all_items()`, both wizards inside finishes | — |
-| `Torch` | wall torch with flicker | `color`, `energy`, `light_range`, `shadows` |
+| `Torch` | wall torch with flicker and spooky guttering; default color comes from the theme | `color`, `energy`, `light_range`, `shadows` |
+| `Prop` | hand-placed decoration of any `Props` kind, no collision | `kind`, `variant` (random seed) |
+| `LevelDresser` | (no scene, made by `level.gd`) scatters theme props; exposes `dark_spots`/`open_spots` for `AmbientFX` | `dress(theme, geometry)` |
 | `element_target.gd` | invisible Area on layer 32 that forwards projectile hits to a `handler` | used by LavaTrench |
 
 Contracts (see root `CLAUDE.md`): `take_hit(p) -> bool`, the `interactable` trio,

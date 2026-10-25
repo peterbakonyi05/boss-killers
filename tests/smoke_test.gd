@@ -78,6 +78,32 @@ func _check_economy() -> void:
 	_check(GameState.base_price("spell_strong") > GameState.base_price("shield_weak") * 2, "strong spell costs much more than a quick shield")
 
 
+## The level theme replaced every placeholder surface and dressed the level.
+func _check_theme() -> void:
+	var level := game.level
+	var theme := LevelTheme.of(level)
+	_check(theme != null, "level has a theme")
+	var placeholders := 0
+	for node in level.find_children("*", "CSGShape3D", true, false):
+		var m: Material = node.get("material")
+		if m and m.resource_path.begins_with("res://data/surfaces/"):
+			placeholders += 1
+	_check(placeholders == 0, "theme replaced all surface materials (%d left)" % placeholders)
+	var dresser: LevelDresser = level.get("dresser")
+	var props := dresser.get_child_count() if dresser else 0
+	_check(props > 80, "theme props placed along the walls (%d)" % props)
+	_check(dresser != null and dresser.dark_spots.size() > 0 and dresser.open_spots.size() > 0,
+		"spots for lurking eyes and wisps found")
+	for kind in Props.KINDS:
+		var p := Props.spawn(kind, level, Vector3(0, -50, 0), 0.0, RandomNumberGenerator.new(), theme)
+		_check(p != null, "prop builds: %s" % kind)
+		if p:
+			p.queue_free()
+	# Props are only looks: none of them may have collision that could block a path.
+	var bodies := dresser.find_children("*", "CollisionObject3D", true, false).size() if dresser else 0
+	_check(bodies == 0, "props have no collision")
+
+
 func _run() -> void:
 	var fire := game.wizards[0]
 	var ice := game.wizards[1]
@@ -99,6 +125,7 @@ func _run() -> void:
 		var path := NavigationServer3D.map_get_path(nav.get_navigation_map(), st[0], st[1], true)
 		var reached := path.size() > 0 and path[path.size() - 1].distance_to(st[1]) < 1.5
 		_check(reached, "walkable: %s" % st[2])
+	_check_theme()
 
 	# Casting every spell and shield
 	fire.teleport(Vector3(2, 0.3, -12))

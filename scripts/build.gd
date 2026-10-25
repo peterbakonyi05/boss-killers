@@ -1,5 +1,75 @@
 class_name Build
-## Helpers that build simple models out of Godot shapes (spheres, boxes, cones...).
+## Helpers that build simple models out of Godot shapes (spheres, boxes, cones...),
+## plus real textures (assets/textures/) and models (assets/models/), see assets/CREDITS.md.
+
+static var _pbr_cache := {}
+static var _model_cache := {}
+
+
+## A realistic material from a texture folder in assets/textures/<id>/
+## (albedo, normal, roughness). uv_scale = repeats per meter. Falls back to a flat
+## color when the folder does not exist, so a theme with a typo still works.
+static func pbr(id: String, tint := Color.WHITE, uv_scale := 0.25, triplanar := true,
+		normal_strength := 1.2) -> StandardMaterial3D:
+	var key := "%s|%s|%s|%s|%s" % [id, tint, uv_scale, triplanar, normal_strength]
+	if _pbr_cache.has(key):
+		return _pbr_cache[key]
+	var dir := "res://assets/textures/%s/" % id
+	var m := StandardMaterial3D.new()
+	m.albedo_color = tint
+	if id != "" and ResourceLoader.exists(dir + "albedo.jpg"):
+		m.albedo_texture = load(dir + "albedo.jpg")
+		m.normal_enabled = true
+		m.normal_texture = load(dir + "normal.jpg")
+		m.normal_scale = normal_strength
+		m.roughness_texture = load(dir + "roughness.jpg")
+		m.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
+		m.roughness = 1.0
+		m.uv1_scale = Vector3.ONE * uv_scale
+		m.uv1_triplanar = triplanar
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	else:
+		m.albedo_color = tint * Color(0.5, 0.45, 0.42)
+		m.roughness = 0.9
+	_pbr_cache[key] = m
+	return m
+
+
+## The scene of a model in assets/models/<id>/<id>.gltf (null if missing).
+static func model_scene(id: String) -> PackedScene:
+	if not _model_cache.has(id):
+		var path := "res://assets/models/%s/%s.gltf" % [id, id]
+		_model_cache[id] = load(path) if ResourceLoader.exists(path) else null
+	return _model_cache[id]
+
+
+## Adds a model to parent. With `piece`, only that one mesh of a model set is added
+## (e.g. one rock of "rock_moss_set_01"), moved so its bottom middle sits at pos.
+static func model(parent: Node3D, id: String, pos := Vector3.ZERO, rot_deg := Vector3.ZERO,
+		scl := 1.0, piece := "") -> Node3D:
+	var ps := model_scene(id)
+	if ps == null:
+		return null
+	var holder := Node3D.new()
+	holder.position = pos
+	holder.rotation_degrees = rot_deg
+	holder.scale = Vector3.ONE * scl
+	parent.add_child(holder)
+	var inst := ps.instantiate() as Node3D
+	if piece == "":
+		holder.add_child(inst)
+	else:
+		var mi := inst.find_child(piece, true, false) as MeshInstance3D
+		if mi:
+			var copy := MeshInstance3D.new()
+			copy.mesh = mi.mesh
+			var aabb := mi.mesh.get_aabb()
+			copy.position = -Vector3(aabb.get_center().x, aabb.position.y, aabb.get_center().z)
+			holder.add_child(copy)
+		inst.free()
+	for mi in holder.find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return holder
 
 
 static func mat(color: Color, roughness := 0.8, metallic := 0.0) -> StandardMaterial3D:

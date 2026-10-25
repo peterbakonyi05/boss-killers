@@ -126,6 +126,28 @@ func _ready() -> void:
 	ice.camera_rig.set_yaw(0.3)
 	await _wait(1.5)
 	await _shot("15_secrets")
+
+	# Theme dressing: props along the walls, and every prop kind in a row
+	fire.teleport(Vector3(-1, 0.3, -24))
+	fire.camera_rig.set_yaw(-0.6)
+	ice.teleport(Vector3(0, 0.3, -183))
+	ice.camera_rig.set_yaw(0.5)
+	await _wait(1.5)
+	await _shot("16_props")
+	var gallery := Node3D.new()
+	game.level.add_child(gallery)
+	var rng := RandomNumberGenerator.new()
+	var theme := LevelTheme.of(game.level)
+	for i in Props.KINDS.size():
+		var row := i / 8
+		var pos := Vector3(-5.6 + (i % 8) * 1.6, 0.0 if Props.KINDS[i] not in ["cage", "chandelier", "cobweb", "chains"] else 3.5, -6.0 - row * 2.5)
+		Props.spawn(Props.KINDS[i], gallery, pos, 0.0, rng, theme)
+	fire.teleport(Vector3(-2.5, 0.3, -1))
+	ice.teleport(Vector3(2.5, 0.3, -1))
+	fire.camera_rig.set_yaw(0.0)
+	ice.camera_rig.set_yaw(0.0)
+	await _wait(1.0)
+	await _shot("17_prop_gallery")
 	get_tree().quit()
 
 
