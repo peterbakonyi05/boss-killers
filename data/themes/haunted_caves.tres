@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="LevelTheme" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/level_theme.gd" id="1_theme"]
+
+[resource]
+script = ExtResource("1_theme")
+theme_name = "Haunted Caves"
+background_color = Color(0.02, 0.008, 0.014, 1)
+ambient_color = Color(0.38, 0.26, 0.34, 1)
+ambient_energy = 0.5
+fog_color = Color(0.12, 0.05, 0.07, 1)
+fog_density = 0.014
+fog_height_density = 0.0
+fog_height = 0.0
+volumetric_fog_density = 0.025
+volumetric_fog_albedo = Color(0.75, 0.6, 0.7, 1)
+volumetric_fog_emission = Color(0.03, 0.006, 0.01, 1)
+glow_intensity = 0.9
+exposure = 1.15
+saturation = 1.05
+wall_texture = "rock_wall_10"
+wall_tint = Color(0.85, 0.72, 0.72, 1)
+wall_uv_scale = 0.25
+floor_texture = "burned_ground_01"
+floor_tint = Color(0.9, 0.8, 0.78, 1)
+floor_uv_scale = 0.22
+arena_floor_texture = "monastery_stone_floor"
+arena_floor_tint = Color(0.75, 0.68, 0.7, 1)
+arena_floor_uv_scale = 0.18
+stone_texture = "mossy_stone_wall"
+stone_tint = Color(0.8, 0.8, 0.85, 1)
+glow_color = Color(1, 0.35, 0.05, 1)
+normal_strength = 1.4
+torch_color = Color(1, 0.55, 0.2, 1)
+torch_flicker = 0.6
+wall_props = PackedStringArray("skull_pile", "bones", "candles", "rock_mossy", "boulder", "barrel", "barrel_pile", "crate", "fallen_knight", "gravestone", "coffin", "lantern", "rock_small", "bucket", "dead_log", "skull_pile", "candles", "rock_mossy", "statue")
+high_props = PackedStringArray("cobweb", "cobweb", "cobweb", "chains", "chains", "cage")
+floor_props = PackedStringArray("rock_small", "bones", "skull", "rock_small")
+wall_prop_density = 0.45
+high_prop_density = 0.16
+floor_prop_density = 0.025
+prop_seed = 1
+ambient_particles = "embers"
+ghost_wisps = 8
+wisp_color = Color(0.5, 1, 0.8, 1)
+bats = true
+lurking_eyes = 8
+eye_color = Color(1, 0.85, 0.2, 1)

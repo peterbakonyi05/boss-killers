@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "floor"
+albedo_color = Color(0.32, 0.22, 0.21, 1)
+roughness = 0.9

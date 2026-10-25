@@ -1,12 +1,13 @@
 # Boss Killers — notes for Claude
 
-Two-player split-screen co-op wizard game, Godot 4.7, GDScript, everything built in
-code from primitive shapes. Player-facing overview and controls: `README.md`.
+Two-player split-screen co-op wizard game, Godot 4.7, GDScript, built in code from
+primitive shapes plus CC0 textures/models. Player-facing overview and controls: `README.md`.
 
 ## Working agreement
 
-- **Gameplay first, graphics last.** Keep visuals to simple shapes (`Build.*`); don't
-  spend time polishing art unless asked. Logic, behaviour and balance come first.
+- **Gameplay first, graphics second.** Visuals are code-built shapes (`Build.*`) dressed
+  with CC0 textures/models from `assets/` through level themes. Keep gameplay readable
+  (telegraphs, paths) over looks; props never get collision.
 - Audience is kids: readable UI text, telegraphed attacks, forgiving checkpoints.
 - Match the existing style: short `##` doc comment on each class/exported var,
   plain words, tabs, typed GDScript (`var x := ...`, `-> void`).
@@ -38,15 +39,16 @@ Gotchas (all hit before):
 |---|---|---|
 | `autoload/game_state.gd` | money, level, magic tiers, shop ranks, save file, riddles | `autoload/CLAUDE.md` |
 | `autoload/player_input.gd` | builds `p1_*`/`p2_*` actions, controller assignment, menu buttons | `autoload/CLAUDE.md` |
-| `data/` | `balance.tres`, spell sets, level data, riddles | `data/CLAUDE.md` |
+| `data/` | `balance.tres`, spell sets, level data, riddles, themes, surface placeholders | `data/CLAUDE.md` |
+| `assets/` | CC0 Poly Haven textures (`textures/<id>/`) and models (`models/<id>/<id>.gltf`) | `assets/CREDITS.md` |
 | `scenes/game.gd` | runs a level: split screen, wizards, checkpoints, items, secrets, finish | — |
 | `scenes/wizard/` | player movement, spells, shields, revive; camera rig | — |
 | `scenes/enemies/` | `enemy.gd` state machine + one scene per monster | `scenes/enemies/CLAUDE.md` |
 | `scenes/magic/` | `Projectile` (shape-query hits), `Shield` | — |
 | `scenes/level_parts/` | arena, gate, checkpoint, lava, doors, chests, ... | `scenes/level_parts/CLAUDE.md` |
-| `scenes/levels/` | level layouts (`level_01.tscn`) | `scenes/levels/CLAUDE.md` |
+| `scenes/levels/` | level layouts (`level_01.tscn`), themes and how to add a level style | `scenes/levels/CLAUDE.md` |
 | `scenes/ui/`, `main_menu.gd` | HUD, overlay, pause, level complete, shop | `scenes/ui/CLAUDE.md` |
-| `scripts/` | `Build` (meshes/materials), `FX` (particles, coins, text), `UIUtil`, data classes | — |
+| `scripts/` | `Build` (meshes, materials, `pbr()` textures, `model()`), `FX` (particles, coins, text), `Props` (decoration kinds), `AmbientFX` (spooky mood), `UIUtil`, data classes | — |
 | `tests/` | smoke, menu and screenshot scripts | `tests/CLAUDE.md` |
 
 Flow: `main_menu.tscn` → `game.tscn` (loads `GameState.level_data().scene_path`) →

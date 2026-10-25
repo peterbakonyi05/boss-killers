@@ -12,6 +12,10 @@ the class with a `##` comment **and** to the `.tres` file.
   damage, cooldowns, shield, burn/slow/freeze numbers). Missing tiers fall back to
   the highest existing one.
 - `riddles.json` — `[{id, question, answers[3], correct}]`, kid-friendly.
+- `themes/<style>.tres` — `LevelTheme`: fog, light, textures, props, spooky extras
+  (see `scenes/levels/CLAUDE.md`, "Themes").
+- `surfaces/<name>.tres` — placeholder materials for level CSG; the theme replaces
+  them at runtime (`wall`, `floor`, `arena_floor`, `stone`, `glow`).
 
 ## Economy rules (keep these true)
 
