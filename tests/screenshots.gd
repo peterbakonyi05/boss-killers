@@ -163,6 +163,26 @@ func _ready() -> void:
 	ice.teleport(Vector3(2.0, 0.3, -3))
 	await _wait(1.0)
 	await _shot("18_monster_closeup")
+
+	# Tier 2 magic: meteor falling + twin flames, glacier spear + twin icicles
+	fire.spell = load("res://data/spells/fire_2.tres")
+	ice.spell = load("res://data/spells/ice_2.tres")
+	fire.cast(true)
+	ice.cast(true)
+	await _wait(0.12)
+	fire.cast(false)
+	ice.cast(false)
+	await _wait(0.1)
+	await _shot("19_spells_tier2")
+	await _wait(0.6)
+	await _shot("20_meteor_landing")
+	for slot in Wizard.SLOTS:
+		fire._cooldowns[slot] = 0.0
+		ice._cooldowns[slot] = 0.0
+	fire._try_shield("shield_weak")
+	ice._try_shield("shield_weak")
+	await _wait(0.15)
+	await _shot("21_shield_patterns")
 	get_tree().quit()
 
 
@@ -174,4 +194,4 @@ func _shot(name: String) -> void:
 	await RenderingServer.frame_post_draw
 	var img := get_viewport().get_texture().get_image()
 	img.save_png(out_dir.path_join(name + ".png"))
-	print("saved ", name)
+	print("saved %s (%d fps)" % [name, Engine.get_frames_per_second()])

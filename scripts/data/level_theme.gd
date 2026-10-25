@@ -136,9 +136,6 @@ func make_environment() -> Environment:
 	e.volumetric_fog_albedo = volumetric_fog_albedo
 	e.volumetric_fog_emission = volumetric_fog_emission
 	e.volumetric_fog_length = 48.0
-	e.ssao_enabled = true
-	e.ssao_radius = 1.2
-	e.ssao_intensity = 1.6
 	e.adjustment_enabled = true
 	e.adjustment_saturation = saturation
 	return e

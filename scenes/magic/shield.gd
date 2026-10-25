@@ -32,12 +32,13 @@ func is_up() -> bool:
 	return _up
 
 
-func raise(color: Color, radius: float, block_amount: float, is_strong: bool) -> void:
+## pattern: see FX.bubble_material (1 = flames, 2 = ice crystals).
+func raise(color: Color, radius: float, block_amount: float, is_strong: bool, pattern := 0) -> void:
 	_up = true
 	block = block_amount
 	strong = is_strong
 	_base_strength = 1.3 if is_strong else 0.8
-	_mat = FX.bubble_material(color, _base_strength)
+	_mat = FX.bubble_material(color, _base_strength, pattern)
 	_mesh.material_override = _mat
 	_shape.set_deferred("disabled", false)
 	visible = true

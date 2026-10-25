@@ -111,7 +111,7 @@ static func spawn(kind: String, parent: Node3D, pos: Vector3, yaw: float,
 	for gi in root.find_children("*", "GeometryInstance3D", true, false):
 		var g := gi as GeometryInstance3D
 		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		g.visibility_range_end = 45.0
+		g.visibility_range_end = 30.0
 		g.visibility_range_end_margin = 5.0
 		g.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	return root

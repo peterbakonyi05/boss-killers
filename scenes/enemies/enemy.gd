@@ -643,6 +643,7 @@ func _shoot(at: Vector3, count: int, spread: float) -> void:
 			"color": color,
 			"caster": self,
 			"life": 3.0,
+			"style": "hellfire" if is_boss else "acid",
 		})
 
 
