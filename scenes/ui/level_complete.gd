@@ -3,6 +3,7 @@ extends CanvasLayer
 
 var _box: VBoxContainer
 var _button: Button
+var _accepts_input := false
 
 
 func _ready() -> void:
@@ -50,8 +51,15 @@ func open(level_number: int, earned: int, unlocked: Dictionary) -> void:
 	visible = true
 	_box.modulate.a = 0.0
 	create_tween().tween_property(_box, "modulate:a", 1.0, 0.6)
+	# Short wait so a Cross press meant as a jump doesn't skip this screen.
 	await get_tree().create_timer(1.0).timeout
+	_accepts_input = true
 	_button.grab_focus()
+
+
+func _process(_delta: float) -> void:
+	if visible and _accepts_input:
+		UIUtil.ensure_focus(_button)
 
 
 func _magic_card(element: String, data: SpellData) -> Control:

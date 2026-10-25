@@ -1,6 +1,6 @@
 extends Node
 ## Screenshots of the menus. Run with:
-##   Godot --path . res://tests/menu_screenshots.tscn -- <output folder>
+##   Godot --always-on-top --path . res://tests/menu_screenshots.tscn -- <output folder>
 
 var out_dir := "user://screenshots"
 
