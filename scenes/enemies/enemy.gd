@@ -36,6 +36,8 @@ enum Look { IMP, BRUTE, KNIGHT }
 @export var charge_cooldown := 6.0
 ## Ranged monsters side-step at this speed while reloading (0 = stand still).
 @export var strafe_speed := 0.0
+## Never walks, only turns and attacks (for spitters on rock islands).
+@export var stationary := false
 
 var health := 30.0
 var max_health := 30.0
@@ -433,6 +435,9 @@ func _think(delta: float) -> Vector3:
 		if choice != "":
 			_start_windup(choice)
 			return Vector3.ZERO
+	if stationary:
+		_face(to_target, delta, 8.0)
+		return Vector3.ZERO
 	var keep_away := ranged and dist < ranged_range * 0.7
 	if keep_away:
 		_face(to_target, delta, 8.0)

@@ -16,6 +16,8 @@ var level: Node3D
 var wizards: Array[Wizard] = []
 var checkpoint: Checkpoint
 var items := {}
+var secrets_found := 0
+var secrets_total := 0
 var _money_at_start := 0
 
 @onready var _viewports: Array[SubViewport] = [$Split/Left/Viewport, $Split/Right/Viewport]
@@ -45,6 +47,7 @@ func _ready() -> void:
 	level = (load(level_data.scene_path) as PackedScene).instantiate()
 	_viewports[0].add_child(level)
 	_money_at_start = GameState.money
+	secrets_total = get_tree().get_nodes_in_group("secrets").size()
 	checkpoint = _find_start_checkpoint()
 	for i in 2:
 		_spawn_wizard(i)
@@ -125,6 +128,11 @@ func missing_items() -> Array[String]:
 	return list
 
 
+func found_secret() -> void:
+	secrets_found += 1
+	toast("Secret found! (%d of %d)" % [secrets_found, secrets_total], UIUtil.GOLD)
+
+
 func open_riddle(wizard: Wizard, stone: RiddleStone) -> void:
 	wizard.controls_locked = true
 	wizard.hud.open_riddle(stone)
@@ -189,4 +197,4 @@ func finish_level() -> void:
 	var unlocked := GameState.complete_level(level_data)
 	toast("Level complete!", UIUtil.GOLD)
 	await get_tree().create_timer(0.8).timeout
-	_level_complete.open(number, earned, unlocked)
+	_level_complete.open(number, earned, unlocked, Vector2i(secrets_found, secrets_total))

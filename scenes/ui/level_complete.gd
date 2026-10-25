@@ -25,7 +25,7 @@ func _ready() -> void:
 	visible = false
 
 
-func open(level_number: int, earned: int, unlocked: Dictionary) -> void:
+func open(level_number: int, earned: int, unlocked: Dictionary, secrets := Vector2i.ZERO) -> void:
 	for c in _box.get_children():
 		c.queue_free()
 	var title := UIUtil.label("LEVEL %d COMPLETE!" % level_number, 72, UIUtil.GOLD, 14)
@@ -34,6 +34,11 @@ func open(level_number: int, earned: int, unlocked: Dictionary) -> void:
 	var money := UIUtil.label("Team money: %d   (+%d this level)" % [GameState.money, earned], 30, UIUtil.GOLD)
 	money.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_box.add_child(money)
+	if secrets.y > 0:
+		var found := UIUtil.label("Secrets found: %d of %d" % [secrets.x, secrets.y], 26,
+			UIUtil.GOLD if secrets.x == secrets.y else Color(1, 0.85, 0.7))
+		found.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_box.add_child(found)
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 30)

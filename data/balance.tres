@@ -5,9 +5,9 @@
 [resource]
 script = ExtResource("1_balance")
 enemy_power_per_level = 10
-money_small = 12
-money_medium = 40
-money_big = 120
+money_small = 8
+money_medium = 25
+money_big = 100
 money_level_bonus = 0.15
 wizard_max_health = 100.0
 revive_time = 7.0
