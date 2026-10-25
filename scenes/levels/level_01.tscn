@@ -1,0 +1,967 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://scenes/levels/level.gd" id="1_level"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/checkpoint.tscn" id="2_cp"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/arena.tscn" id="3_arena"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/gate.tscn" id="4_gate"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/lava_trench.tscn" id="5_lava"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/ice_door.tscn" id="6_door"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/key_pickup.tscn" id="7_key"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/riddle_stone.tscn" id="8_riddle"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/exit_portal.tscn" id="9_portal"]
+[ext_resource type="PackedScene" path="res://scenes/level_parts/torch.tscn" id="10_torch"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/imp.tscn" id="11_imp"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/brute.tscn" id="12_brute"]
+
+[sub_resource type="Environment" id="Environment_cave"]
+background_mode = 1
+background_color = Color(0.03, 0.008, 0.012, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.42, 0.24, 0.26, 1)
+ambient_light_energy = 0.45
+tonemap_mode = 3
+tonemap_exposure = 1.1
+glow_enabled = true
+glow_intensity = 0.9
+glow_bloom = 0.08
+glow_blend_mode = 1
+fog_enabled = true
+fog_light_color = Color(0.18, 0.05, 0.04, 1)
+fog_density = 0.012
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.02
+volumetric_fog_albedo = Color(0.9, 0.55, 0.45, 1)
+volumetric_fog_emission = Color(0.04, 0.004, 0.002, 1)
+volumetric_fog_length = 48.0
+adjustment_enabled = true
+adjustment_saturation = 1.1
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_rock"]
+frequency = 0.04
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_rock"]
+seamless = true
+noise = SubResource("FastNoiseLite_rock")
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_rock_normal"]
+seamless = true
+as_normal_map = true
+bump_strength = 10.0
+noise = SubResource("FastNoiseLite_rock")
+
+[sub_resource type="StandardMaterial3D" id="Mat_wall"]
+albedo_color = Color(0.42, 0.33, 0.33, 1)
+albedo_texture = SubResource("NoiseTexture2D_rock")
+roughness = 0.95
+normal_enabled = true
+normal_scale = 1.5
+normal_texture = SubResource("NoiseTexture2D_rock_normal")
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor"]
+albedo_color = Color(0.32, 0.22, 0.21, 1)
+albedo_texture = SubResource("NoiseTexture2D_rock")
+roughness = 0.9
+normal_enabled = true
+normal_texture = SubResource("NoiseTexture2D_rock_normal")
+uv1_scale = Vector3(0.18, 0.18, 0.18)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="Mat_arena_floor"]
+albedo_color = Color(0.27, 0.2, 0.22, 1)
+albedo_texture = SubResource("NoiseTexture2D_rock")
+roughness = 0.85
+normal_enabled = true
+normal_texture = SubResource("NoiseTexture2D_rock_normal")
+uv1_scale = Vector3(0.12, 0.12, 0.12)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="Mat_lava_crack"]
+albedo_color = Color(1, 0.35, 0.05, 1)
+emission_enabled = true
+emission = Color(1, 0.35, 0.05, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_level"]
+geometry_parsed_geometry_type = 1
+agent_radius = 0.75
+agent_max_climb = 0.25
+agent_max_slope = 40.0
+
+[node name="Level01" type="Node3D"]
+script = ExtResource("1_level")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_cave")
+
+[node name="Nav" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_level")
+
+[node name="Geometry" type="Node3D" parent="Nav"]
+
+[node name="FloorStart" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -5)
+size = Vector3(14, 1, 14)
+material = SubResource("Mat_floor")
+use_collision = true
+
+[node name="StartWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 3, -5)
+size = Vector3(1, 8, 15)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="StartWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 3, -5)
+size = Vector3(1, 8, 15)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallStartBack" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 2.5)
+size = Vector3(16, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallStartEndL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3, -12)
+size = Vector3(4, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallStartEndR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 3, -12)
+size = Vector3(4, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="FloorCorridorA" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -26)
+size = Vector3(8, 1, 28)
+material = SubResource("Mat_floor")
+use_collision = true
+
+[node name="CorridorAWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 3, -26)
+size = Vector3(1, 8, 29)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="CorridorAWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 3, -26)
+size = Vector3(1, 8, 29)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="RubbleA1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0.5, -23)
+size = Vector3(2.2, 1, 2.2)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="RubbleA2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 0.5, -31)
+size = Vector3(1.8, 1, 3)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="FloorArena1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -52)
+size = Vector3(24, 1, 24)
+material = SubResource("Mat_arena_floor")
+use_collision = true
+
+[node name="Arena1WallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 3, -52)
+size = Vector3(1, 8, 25)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Arena1WallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 3, -52)
+size = Vector3(1, 8, 25)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallArena1InL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3, -40)
+size = Vector3(9, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallArena1InR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3, -40)
+size = Vector3(9, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallArena1OutL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3, -64)
+size = Vector3(9, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallArena1OutR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3, -64)
+size = Vector3(9, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="FloorCorridorB1" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -69)
+size = Vector3(8, 1, 10)
+material = SubResource("Mat_floor")
+use_collision = true
+
+[node name="FloorCorridorB2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -87)
+size = Vector3(8, 1, 10)
+material = SubResource("Mat_floor")
+use_collision = true
+
+[node name="CorridorBWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 3, -78)
+size = Vector3(1, 8, 29)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="CorridorBWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 3, -78)
+size = Vector3(1, 8, 29)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="FloorArena2" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -104)
+size = Vector3(24, 1, 24)
+material = SubResource("Mat_arena_floor")
+use_collision = true
+
+[node name="Arena2WallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5, 3, -104)
+size = Vector3(1, 8, 25)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Arena2WallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5, 3, -104)
+size = Vector3(1, 8, 25)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallArena2InL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3, -92)
+size = Vector3(9, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallArena2InR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3, -92)
+size = Vector3(9, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallArena2OutL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 3, -116)
+size = Vector3(9, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallArena2OutR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 3, -116)
+size = Vector3(9, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="PillarArena2A" type="CSGCylinder3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3, -100)
+radius = 1.1
+height = 8.0
+sides = 10
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="PillarArena2B" type="CSGCylinder3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 3, -108)
+radius = 1.1
+height = 8.0
+sides = 10
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="FloorRiddleRoom" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -123)
+size = Vector3(12, 1, 14)
+material = SubResource("Mat_floor")
+use_collision = true
+
+[node name="RiddleRoomWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 3, -123)
+size = Vector3(1, 8, 15)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="RiddleRoomWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 3, -123)
+size = Vector3(1, 8, 15)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallRiddleEndL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, 3, -130)
+size = Vector3(3, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallRiddleEndR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 3, -130)
+size = Vector3(3, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="FloorDoorway" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -133)
+size = Vector3(8, 1, 6)
+material = SubResource("Mat_floor")
+use_collision = true
+
+[node name="DoorwayWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 3, -133)
+size = Vector3(1, 8, 7)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="DoorwayWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 3, -133)
+size = Vector3(1, 8, 7)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="FloorBigArena" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -156)
+size = Vector3(36, 1, 40)
+material = SubResource("Mat_arena_floor")
+use_collision = true
+
+[node name="BigArenaWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.5, 3, -156)
+size = Vector3(1, 8, 41)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="BigArenaWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.5, 3, -156)
+size = Vector3(1, 8, 41)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallBigArenaInL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 3, -136)
+size = Vector3(15, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallBigArenaInR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 3, -136)
+size = Vector3(15, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallBigArenaOutL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 3, -176)
+size = Vector3(15, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallBigArenaOutR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 3, -176)
+size = Vector3(15, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="PillarBig1" type="CSGCylinder3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 3, -147)
+radius = 1.4
+height = 8.0
+sides = 10
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="PillarBig2" type="CSGCylinder3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 3, -147)
+radius = 1.4
+height = 8.0
+sides = 10
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="PillarBig3" type="CSGCylinder3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 3, -165)
+radius = 1.4
+height = 8.0
+sides = 10
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="PillarBig4" type="CSGCylinder3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 3, -165)
+radius = 1.4
+height = 8.0
+sides = 10
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="FloorPortalRoom" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -184)
+size = Vector3(12, 1, 16)
+material = SubResource("Mat_floor")
+use_collision = true
+
+[node name="PortalRoomWallL" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 3, -184)
+size = Vector3(1, 8, 17)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="PortalRoomWallR" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 3, -184)
+size = Vector3(1, 8, 17)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WallPortalBack" type="CSGBox3D" parent="Nav/Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -192.5)
+size = Vector3(14, 8, 1)
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Decor" type="Node3D" parent="."]
+
+[node name="LavaCrack1" type="CSGBox3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.01, -48)
+size = Vector3(5, 0.04, 0.6)
+material = SubResource("Mat_lava_crack")
+
+[node name="LavaCrackLight1" type="OmniLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.6, -48)
+light_color = Color(1, 0.4, 0.1, 1)
+light_energy = 1.2
+omni_range = 5.0
+
+[node name="LavaCrack2" type="CSGBox3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.01, -57)
+size = Vector3(4, 0.04, 0.5)
+material = SubResource("Mat_lava_crack")
+
+[node name="LavaCrackLight2" type="OmniLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.6, -57)
+light_color = Color(1, 0.4, 0.1, 1)
+light_energy = 1.2
+omni_range = 5.0
+
+[node name="LavaCrack3" type="CSGBox3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.01, -98)
+size = Vector3(0.5, 0.04, 6)
+material = SubResource("Mat_lava_crack")
+
+[node name="LavaCrackLight3" type="OmniLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.6, -98)
+light_color = Color(1, 0.4, 0.1, 1)
+light_energy = 1.2
+omni_range = 5.0
+
+[node name="LavaCrack4" type="CSGBox3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.01, -112)
+size = Vector3(5, 0.04, 0.5)
+material = SubResource("Mat_lava_crack")
+
+[node name="LavaCrackLight4" type="OmniLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.6, -112)
+light_color = Color(1, 0.4, 0.1, 1)
+light_energy = 1.2
+omni_range = 5.0
+
+[node name="LavaCrack5" type="CSGBox3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.01, -142)
+size = Vector3(6, 0.04, 0.6)
+material = SubResource("Mat_lava_crack")
+
+[node name="LavaCrackLight5" type="OmniLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.6, -142)
+light_color = Color(1, 0.4, 0.1, 1)
+light_energy = 1.2
+omni_range = 5.0
+
+[node name="LavaCrack6" type="CSGBox3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.01, -158)
+size = Vector3(0.6, 0.04, 7)
+material = SubResource("Mat_lava_crack")
+
+[node name="LavaCrackLight6" type="OmniLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.6, -158)
+light_color = Color(1, 0.4, 0.1, 1)
+light_energy = 1.2
+omni_range = 5.0
+
+[node name="LavaCrack7" type="CSGBox3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.01, -170)
+size = Vector3(8, 0.04, 0.5)
+material = SubResource("Mat_lava_crack")
+
+[node name="LavaCrackLight7" type="OmniLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.6, -170)
+light_color = Color(1, 0.4, 0.1, 1)
+light_energy = 1.2
+omni_range = 5.0
+
+[node name="LavaCrack8" type="CSGBox3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.01, -152)
+size = Vector3(0.5, 0.04, 4)
+material = SubResource("Mat_lava_crack")
+
+[node name="LavaCrackLight8" type="OmniLight3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.6, -152)
+light_color = Color(1, 0.4, 0.1, 1)
+light_energy = 1.2
+omni_range = 5.0
+
+[node name="Stalagmite1" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1.5, -2)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite2" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1.5, -8)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite3" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1.5, -42)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite4" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1.5, -62)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite5" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1.5, -94)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite6" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1.5, -114)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite7" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 1.5, -138)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite8" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 1.5, -174)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite9" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 1.5, -174)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite10" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 1.5, -138)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite11" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.5, -190)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="Stalagmite12" type="CSGCylinder3D" parent="Decor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, -190)
+radius = 0.8
+height = 3.0
+sides = 7
+cone = true
+material = SubResource("Mat_wall")
+use_collision = true
+
+[node name="WelcomeSign" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.6, -11.4)
+pixel_size = 0.01
+modulate = Color(1, 0.85, 0.5, 1)
+outline_modulate = Color(0, 0, 0, 0.9)
+text = "Welcome, Boss Killers!
+Work together to reach the exit portal."
+font_size = 56
+outline_size = 12
+
+[node name="Torches" type="Node3D" parent="."]
+
+[node name="Torch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7, 2, -14)
+
+[node name="Torch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7, 2, -22)
+
+[node name="Torch3" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7, 2, -30)
+
+[node name="Torch4" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7, 2, -38)
+
+[node name="Torch5" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.7, 2, -3)
+
+[node name="Torch6" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7, 2, -9)
+
+[node name="Torch7" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7, 2, -66)
+
+[node name="Torch8" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7, 2, -70)
+
+[node name="Torch9" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7, 2, -86)
+
+[node name="Torch10" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7, 2, -90)
+
+[node name="Torch11" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.7, 2, -118)
+
+[node name="Torch12" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.7, 2, -127)
+
+[node name="Torch13" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.7, 2, -180)
+
+[node name="Torch14" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.7, 2, -184)
+
+[node name="ArenaTorch1" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -44)
+energy = 3.0
+light_range = 14.0
+shadows = true
+
+[node name="ArenaTorch2" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -44)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="ArenaTorch3" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -60)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="ArenaTorch4" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -60)
+energy = 3.0
+light_range = 14.0
+shadows = true
+
+[node name="ArenaTorch5" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -96)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="ArenaTorch6" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -96)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="ArenaTorch7" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.7, 2.6, -112)
+energy = 3.0
+light_range = 14.0
+shadows = true
+
+[node name="ArenaTorch8" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.7, 2.6, -112)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="ArenaTorch9" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.7, 2.6, -140)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="ArenaTorch10" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.7, 2.6, -140)
+energy = 3.0
+light_range = 14.0
+shadows = true
+
+[node name="ArenaTorch11" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.7, 2.6, -156)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="ArenaTorch12" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.7, 2.6, -156)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="ArenaTorch13" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.7, 2.6, -172)
+energy = 3.0
+light_range = 14.0
+shadows = true
+
+[node name="ArenaTorch14" parent="Torches" instance=ExtResource("10_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.7, 2.6, -172)
+energy = 3.0
+light_range = 14.0
+shadows = false
+
+[node name="Checkpoints" type="Node3D" parent="."]
+
+[node name="CheckpointStart" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+zone_width = 14
+brazier_offset = Vector3(-5, 0, 0)
+start_active = true
+
+[node name="CheckpointBeforeArena1" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -37)
+zone_width = 8
+brazier_offset = Vector3(-3, 0, 0)
+
+[node name="CheckpointBeforeLava" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -68)
+zone_width = 8
+brazier_offset = Vector3(-3, 0, 0)
+
+[node name="CheckpointAfterLava" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -85.5)
+zone_width = 8
+brazier_offset = Vector3(3, 0, 0)
+
+[node name="CheckpointRiddleRoom" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -119)
+zone_width = 12
+brazier_offset = Vector3(-5, 0, 0)
+
+[node name="CheckpointBeforeBigArena" parent="Checkpoints" instance=ExtResource("2_cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -134.9)
+zone_width = 8
+brazier_offset = Vector3(3.2, 0, 0)
+
+[node name="PathMonsters" type="Node3D" parent="."]
+
+[node name="Imp1" parent="PathMonsters" instance=ExtResource("11_imp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -19)
+
+[node name="Imp2" parent="PathMonsters" instance=ExtResource("11_imp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -20)
+
+[node name="Imp3" parent="PathMonsters" instance=ExtResource("11_imp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -28)
+
+[node name="Spitter1" parent="PathMonsters" instance=ExtResource("11_imp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, -35)
+ranged = true
+display_name = "Spitter Imp"
+body_color = Color(0.2, 0.35, 0.12, 1)
+eye_color = Color(0.7, 1, 0.2, 1)
+attack_cooldown = 2.0
+windup_time = 0.6
+
+[node name="SpitterAcrossLava" parent="PathMonsters" instance=ExtResource("11_imp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -89)
+aggro_range = 18.0
+ranged = true
+display_name = "Spitter Imp"
+body_color = Color(0.2, 0.35, 0.12, 1)
+eye_color = Color(0.7, 1, 0.2, 1)
+attack_cooldown = 2.0
+windup_time = 0.6
+
+[node name="Imp4" parent="PathMonsters" instance=ExtResource("11_imp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -123)
+
+[node name="Imp5" parent="PathMonsters" instance=ExtResource("11_imp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -126)
+
+[node name="Brute1" parent="PathMonsters" instance=ExtResource("12_brute")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -128)
+
+[node name="Arena1" parent="." instance=ExtResource("3_arena")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -52)
+arena_name = "Imp Den"
+size = Vector3(24, 6, 24)
+wave_imps = PackedInt32Array(4, 2)
+wave_spitters = PackedInt32Array(0, 2)
+wave_brutes = PackedInt32Array(0, 0)
+wave_knights = PackedInt32Array(0, 0)
+
+[node name="GateIn" parent="Arena1" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
+
+[node name="GateOut" parent="Arena1" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+
+[node name="Entry" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 8.5)
+
+[node name="Spawn1" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -8)
+
+[node name="Spawn2" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -9)
+
+[node name="Spawn3" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -8)
+
+[node name="Spawn4" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, 0)
+
+[node name="Spawn5" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
+
+[node name="Spawn6" type="Marker3D" parent="Arena1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)
+
+[node name="Arena2" parent="." instance=ExtResource("3_arena")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -104)
+arena_name = "Brute Pit"
+size = Vector3(24, 6, 24)
+wave_imps = PackedInt32Array(3, 2)
+wave_spitters = PackedInt32Array(1, 1)
+wave_brutes = PackedInt32Array(0, 1)
+wave_knights = PackedInt32Array(0, 0)
+
+[node name="GateIn" parent="Arena2" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
+
+[node name="GateOut" parent="Arena2" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+
+[node name="Entry" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 8.5)
+
+[node name="Spawn1" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -8)
+
+[node name="Spawn2" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -9)
+
+[node name="Spawn3" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -8)
+
+[node name="Spawn4" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, 1)
+
+[node name="Spawn5" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, -1)
+
+[node name="Spawn6" type="Marker3D" parent="Arena2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+
+[node name="BigArena" parent="." instance=ExtResource("3_arena")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -156)
+arena_name = "Hall of the Demon Knight"
+size = Vector3(36, 6, 40)
+wave_imps = PackedInt32Array(5, 2, 2)
+wave_spitters = PackedInt32Array(2, 1, 0)
+wave_brutes = PackedInt32Array(0, 2, 0)
+wave_knights = PackedInt32Array(0, 0, 1)
+reward_scene = ExtResource("7_key")
+
+[node name="GateIn" parent="BigArena" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
+
+[node name="GateOut" parent="BigArena" instance=ExtResource("4_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -20)
+
+[node name="Entry" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 16.5)
+
+[node name="Spawn1" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -14)
+
+[node name="Spawn2" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
+
+[node name="Spawn3" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -14)
+
+[node name="Spawn4" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 0)
+
+[node name="Spawn5" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 0)
+
+[node name="Spawn6" type="Marker3D" parent="BigArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+
+[node name="LavaTrench" parent="." instance=ExtResource("5_lava")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -78)
+
+[node name="IceDoor" parent="." instance=ExtResource("6_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -133)
+
+[node name="RiddleStone" parent="." instance=ExtResource("8_riddle")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, -122)
+
+[node name="ExitPortal" parent="." instance=ExtResource("9_portal")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -187)

@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/enemies/enemy.gd" id="1_enemy"]
+
+[node name="DemonKnight" type="CharacterBody3D"]
+script = ExtResource("1_enemy")
+look = 2
+display_name = "Demon Knight"
+base_health = 700.0
+base_damage = 16.0
+move_speed = 3.4
+attack_range = 3.5
+attack_cooldown = 1.6
+windup_time = 0.6
+ranged_range = 22.0
+projectile_speed = 12.0
+aggro_range = 40.0
+money_size = "big"
+body_color = Color(0.22, 0.08, 0.1, 1)
+eye_color = Color(1, 0.2, 0.05, 1)
+is_boss = true

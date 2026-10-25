@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="SpellData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/spell_data.gd" id="1_spell"]
+
+[resource]
+script = ExtResource("1_spell")
+set_name = "Ember Magic"
+element = "fire"
+tier = 1
+color = Color(1, 0.45, 0.1, 1)
+strong_name = "Fireball"
+strong_damage = 24.0
+strong_cooldown = 1.1
+strong_speed = 18.0
+strong_size = 0.42
+strong_splash_radius = 2.0
+strong_count = 1
+weak_name = "Flame Darts"
+weak_damage = 7.0
+weak_cooldown = 0.26
+weak_speed = 28.0
+weak_size = 0.16
+weak_count = 1
+shield_strong_name = "Flame Dome"
+shield_strong_block = 1.0
+shield_strong_duration = 3.0
+shield_strong_cooldown = 6.0
+shield_strong_radius = 1.5
+shield_weak_name = "Spark Guard"
+shield_weak_block = 0.6
+shield_weak_duration = 0.9
+shield_weak_cooldown = 1.5
+shield_weak_radius = 1.15
+burn_dps = 5.0
+burn_time = 3.0
+slow_per_stack = 0.2
+slow_time = 2.5
+freeze_stacks = 5
+freeze_time = 2.5
+strong_stacks = 2

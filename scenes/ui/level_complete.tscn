@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/level_complete.gd" id="1_done"]
+
+[node name="LevelComplete" type="CanvasLayer"]
+script = ExtResource("1_done")

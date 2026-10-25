@@ -1,0 +1,60 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scenes/game.gd" id="1_game"]
+[ext_resource type="PackedScene" path="res://scenes/wizard/camera_rig.tscn" id="2_rig"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3_hud"]
+[ext_resource type="Script" path="res://scenes/ui/team_overlay.gd" id="4_overlay"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="5_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/level_complete.tscn" id="6_done"]
+
+[node name="Game" type="Node"]
+script = ExtResource("1_game")
+
+[node name="Split" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Left" type="SubViewportContainer" parent="Split"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+stretch = true
+
+[node name="Viewport" type="SubViewport" parent="Split/Left"]
+handle_input_locally = false
+audio_listener_enable_3d = true
+size = Vector2i(800, 900)
+render_target_update_mode = 4
+
+[node name="CameraRig" parent="Split/Left/Viewport" instance=ExtResource("2_rig")]
+
+[node name="HUD" parent="Split/Left/Viewport" instance=ExtResource("3_hud")]
+
+[node name="Right" type="SubViewportContainer" parent="Split"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+stretch = true
+
+[node name="Viewport" type="SubViewport" parent="Split/Right"]
+handle_input_locally = false
+size = Vector2i(800, 900)
+render_target_update_mode = 4
+
+[node name="CameraRig" parent="Split/Right/Viewport" instance=ExtResource("2_rig")]
+player_index = 1
+
+[node name="HUD" parent="Split/Right/Viewport" instance=ExtResource("3_hud")]
+player_index = 1
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+script = ExtResource("4_overlay")
+
+[node name="PauseMenu" parent="." instance=ExtResource("5_pause")]
+
+[node name="LevelComplete" parent="." instance=ExtResource("6_done")]

@@ -1,0 +1,10 @@
+[
+	{"id": "egg", "question": "What must be broken before you can use it?", "answers": ["An egg", "A rock", "A sword"], "correct": 0},
+	{"id": "piano", "question": "I have keys but I open no locks. What am I?", "answers": ["A dragon", "A piano", "A treasure chest"], "correct": 1},
+	{"id": "footsteps", "question": "The more you take, the more you leave behind. What are they?", "answers": ["Coins", "Cookies", "Footsteps"], "correct": 2},
+	{"id": "towel", "question": "What gets wetter the more it dries?", "answers": ["A towel", "A fish", "A cloud"], "correct": 0},
+	{"id": "age", "question": "What goes up but never comes down?", "answers": ["A balloon", "Your age", "A bird"], "correct": 1},
+	{"id": "clock", "question": "What has hands but cannot clap?", "answers": ["A monkey", "A wizard", "A clock"], "correct": 2},
+	{"id": "needle", "question": "What has one eye but cannot see?", "answers": ["A needle", "A pirate", "A bat"], "correct": 0},
+	{"id": "bottle", "question": "What has a neck but no head?", "answers": ["A snake", "A bottle", "A ghost"], "correct": 1}
+]
