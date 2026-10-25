@@ -22,8 +22,8 @@ func _ready() -> void:
 	menu.queue_free()
 	var done: CanvasLayer = (load("res://scenes/ui/level_complete.tscn") as PackedScene).instantiate()
 	add_child(done)
-	GameState.money = 2350
-	done.open(1, 2350, {"fire": GameState.spell_data("fire"), "ice": GameState.spell_data("ice")})
+	GameState.money = 650
+	done.open(1, 650, {"fire": GameState.spell_data("fire"), "ice": GameState.spell_data("ice")})
 	await _wait(1.2)
 	await _shot("22_level_complete")
 	done.queue_free()

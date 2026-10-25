@@ -29,6 +29,7 @@ var wave := 0
 var _alive: Array[Enemy] = []
 var _spawning := 0
 var _run := 0   # changes on every start, so old timers from a reset fight are ignored
+var _earned := 0   # money from this fight, taken back if the team falls and the fight restarts
 
 
 func _ready() -> void:
@@ -54,6 +55,7 @@ func _on_body_entered(body: Node3D) -> void:
 func start() -> void:
 	state = "active"
 	wave = 0
+	_earned = 0
 	_run += 1
 	_spawning = 0
 	for gate in _gates():
@@ -108,7 +110,11 @@ func _spawn_wave_later(delay: float) -> void:
 
 
 func _wave_value(list: PackedInt32Array) -> int:
-	return list[wave] if wave < list.size() else 0
+	return _wave_value_at(list, wave)
+
+
+func _wave_value_at(list: PackedInt32Array, index: int) -> int:
+	return list[index] if index < list.size() else 0
 
 
 func _spawn_wave() -> void:
@@ -163,6 +169,7 @@ func _spawn_enemy(kind, pos: Vector3, delay: float) -> void:
 
 func _on_enemy_died(enemy: Enemy) -> void:
 	_alive.erase(enemy)
+	_earned += enemy.money_dropped
 	if _alive.is_empty() and _spawning == 0 and state == "active":
 		_on_wave_done()
 
@@ -190,11 +197,15 @@ func _clear() -> void:
 
 
 ## After both wizards fall: remove the monsters and let the fight start over.
+## Money from this try is taken back, so the same waves can't be farmed.
 func reset() -> void:
 	if state != "active":
 		return
 	state = "idle"
 	wave = 0
+	if _earned > 0:
+		GameState.add_money(-mini(_earned, GameState.money))
+		_earned = 0
 	for enemy in _alive:
 		if is_instance_valid(enemy):
 			enemy.queue_free()

@@ -104,8 +104,21 @@ func upgrade_mult(element: String, slot: String) -> float:
 	return 1.0 + balance.upgrade_bonus_per_rank * rank(element, slot)
 
 
+## First-rank price of a slot (the same for both wizards).
+func base_price(slot: String) -> int:
+	match slot:
+		"spell_strong":
+			return balance.price_spell_strong
+		"spell_weak":
+			return balance.price_spell_weak
+		"shield_strong":
+			return balance.price_shield_strong
+	return balance.price_shield_weak
+
+
 func upgrade_price(element: String, slot: String) -> int:
-	return balance.shop_base_price + balance.shop_price_per_rank * rank(element, slot)
+	var price := base_price(slot) * (1.0 + balance.shop_price_growth * rank(element, slot))
+	return int(round(price / 10.0)) * 10
 
 
 func can_upgrade(element: String, slot: String) -> bool:
