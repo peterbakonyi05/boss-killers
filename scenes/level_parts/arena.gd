@@ -11,6 +11,7 @@ signal started
 signal cleared
 
 const IMP := preload("res://scenes/enemies/imp.tscn")
+const SPITTER := preload("res://scenes/enemies/spitter.tscn")
 const BRUTE := preload("res://scenes/enemies/brute.tscn")
 const KNIGHT := preload("res://scenes/enemies/demon_knight.tscn")
 
@@ -126,7 +127,7 @@ func _spawn_wave() -> void:
 	for k in _wave_value(wave_imps):
 		todo.append(IMP)
 	for k in _wave_value(wave_spitters):
-		todo.append("spitter")
+		todo.append(SPITTER)
 	var points := _spawn_points()
 	points.shuffle()
 	if Game.instance and wave_count() > 1:
@@ -138,7 +139,14 @@ func _spawn_wave() -> void:
 		_on_wave_done()
 
 
-func _spawn_enemy(kind, pos: Vector3, delay: float) -> void:
+## Extra monsters called in during the fight (an enraged boss calls imps).
+func summon(kind: String, pos: Vector3) -> void:
+	if state != "active":
+		return
+	_spawn_enemy(SPITTER if kind == "spitter" else IMP, pos, 0.0)
+
+
+func _spawn_enemy(kind: PackedScene, pos: Vector3, delay: float) -> void:
 	var run := _run
 	_spawning += 1
 	FX.burst(self, pos + Vector3(0, 1, 0), Color(0.5, 0.2, 0.7, 0.8), 24, 3.0, 1.2, 1.0,
@@ -149,17 +157,7 @@ func _spawn_enemy(kind, pos: Vector3, delay: float) -> void:
 	if run != _run or state != "active":
 		return
 	_spawning -= 1
-	var enemy: Enemy
-	if kind is String:
-		enemy = IMP.instantiate()
-		enemy.ranged = true
-		enemy.display_name = "Spitter Imp"
-		enemy.body_color = Color(0.2, 0.35, 0.12)
-		enemy.eye_color = Color(0.7, 1.0, 0.2)
-		enemy.attack_cooldown = 2.0
-		enemy.windup_time = 0.6
-	else:
-		enemy = (kind as PackedScene).instantiate()
+	var enemy: Enemy = kind.instantiate()
 	enemy.always_aggro = true
 	add_child(enemy)
 	enemy.global_position = pos

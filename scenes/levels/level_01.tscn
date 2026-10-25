@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scenes/levels/level.gd" id="1_level"]
 [ext_resource type="PackedScene" path="res://scenes/level_parts/checkpoint.tscn" id="2_cp"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/level_parts/torch.tscn" id="10_torch"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/imp.tscn" id="11_imp"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/brute.tscn" id="12_brute"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/spitter.tscn" id="13_spitter"]
 
 [sub_resource type="Environment" id="Environment_cave"]
 background_mode = 1
@@ -817,24 +818,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -20)
 [node name="Imp3" parent="PathMonsters" instance=ExtResource("11_imp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -28)
 
-[node name="Spitter1" parent="PathMonsters" instance=ExtResource("11_imp")]
+[node name="Spitter1" parent="PathMonsters" instance=ExtResource("13_spitter")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, -35)
-ranged = true
-display_name = "Spitter Imp"
-body_color = Color(0.2, 0.35, 0.12, 1)
-eye_color = Color(0.7, 1, 0.2, 1)
-attack_cooldown = 2.0
-windup_time = 0.6
 
-[node name="SpitterAcrossLava" parent="PathMonsters" instance=ExtResource("11_imp")]
+[node name="SpitterAcrossLava" parent="PathMonsters" instance=ExtResource("13_spitter")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -89)
 aggro_range = 18.0
-ranged = true
-display_name = "Spitter Imp"
-body_color = Color(0.2, 0.35, 0.12, 1)
-eye_color = Color(0.7, 1, 0.2, 1)
-attack_cooldown = 2.0
-windup_time = 0.6
 
 [node name="Imp4" parent="PathMonsters" instance=ExtResource("11_imp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -123)
