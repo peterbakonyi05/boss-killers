@@ -19,9 +19,10 @@ func _ready() -> void:
 		add_to_group("secrets")
 	collision_layer = 1
 	Build.collision_box(self, Vector3(1.2, 0.8, 0.8), Vector3(0, 0.4, 0))
-	var wood := Build.mat(Color(0.35, 0.2, 0.1), 0.85)
-	var gold := Build.glow(UIUtil.GOLD, 1.0)
+	var wood := Build.pbr("wood_planks", Color(0.7, 0.5, 0.38), 1.2, true)
+	var gold := Build.glow(UIUtil.GOLD, 0.6)
 	gold.metallic = 0.9
+	gold.roughness = 0.3
 	Build.part(self, Build.box(Vector3(1.2, 0.6, 0.8)), wood, Vector3(0, 0.3, 0))
 	for x in [-0.45, 0.45]:
 		Build.part(self, Build.box(Vector3(0.08, 0.62, 0.82)), gold, Vector3(x, 0.3, 0))
@@ -30,6 +31,12 @@ func _ready() -> void:
 	_lid = Build.pivot(self, Vector3(0, 0.6, 0.4))
 	Build.part(_lid, Build.box(Vector3(1.24, 0.25, 0.84)), wood, Vector3(0, 0.12, -0.42))
 	Build.part(_lid, Build.box(Vector3(0.2, 0.2, 0.06)), gold, Vector3(0, 0.05, -0.85))
+	Build.part(_lid, Build.cylinder(0.43, 1.24), wood, Vector3(0, 0.22, -0.42), Vector3(0, 0, 90), Vector3(1, 1, 0.45))
+	for x in [-0.45, 0.45]:
+		Build.part(_lid, Build.cylinder(0.44, 0.08), gold, Vector3(x, 0.22, -0.42), Vector3(0, 0, 90), Vector3(1, 1, 0.46))
+	for x in [-0.55, 0.55]:
+		for z in [-0.36, 0.36]:
+			Build.part(self, Build.box(Vector3(0.12, 0.12, 0.12)), gold, Vector3(x, 0.06, z))
 	_light = Build.light(self, UIUtil.GOLD, 1.2, 4.0, Vector3(0, 1.2, -0.6))
 	_sparkles = FX.particles(UIUtil.GOLD * 2.0, 8, 1.2, 0.1, {"radius": 0.6, "speed_min": 0.1, "speed_max": 0.3})
 	_sparkles.position = Vector3(0, 0.8, 0)

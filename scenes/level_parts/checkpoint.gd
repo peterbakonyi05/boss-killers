@@ -34,10 +34,19 @@ func _build_brazier() -> void:
 	base.position = brazier_offset
 	add_child(base)
 	Build.collision_box(base, Vector3(0.9, 1.4, 0.9), Vector3(0, 0.7, 0))
-	var stone := Build.mat(Color(0.3, 0.27, 0.27), 0.95)
-	Build.part(base, Build.cylinder(0.45, 0.25), stone, Vector3(0, 0.12, 0))
+	var stone := Build.pbr("mossy_stone_wall", Color(0.8, 0.78, 0.75), 1.5, true)
+	var iron := Build.pbr("rusty_metal_02", Color(0.45, 0.4, 0.38), 2.0, true)
+	Build.part(base, Build.cylinder(0.5, 0.15), stone, Vector3(0, 0.07, 0))
+	Build.part(base, Build.cylinder(0.42, 0.15), stone, Vector3(0, 0.2, 0))
 	Build.part(base, Build.cylinder(0.25, 0.9, 0.3), stone, Vector3(0, 0.65, 0))
-	Build.part(base, Build.cylinder(0.5, 0.25, 0.35), stone, Vector3(0, 1.2, 0))
+	for k in 4:
+		var a := k * TAU / 4.0 + PI / 4.0
+		Build.part(base, Build.box(Vector3(0.08, 0.7, 0.08)), stone, Vector3(cos(a) * 0.3, 0.6, sin(a) * 0.3))
+	Build.part(base, Build.cylinder(0.5, 0.25, 0.35), iron, Vector3(0, 1.2, 0))
+	Build.part(base, Build.torus(0.48, 0.56), iron, Vector3(0, 1.32, 0))
+	for k in 6:
+		var a := k * TAU / 6.0
+		Build.part(base, Build.cone(0.05, 0.22), iron, Vector3(cos(a) * 0.52, 1.42, sin(a) * 0.52))
 	_gem_mat = Build.glow(Color(1.0, 0.85, 0.4), 1.0)
 	Build.part(base, Build.sphere(0.18), _gem_mat, Vector3(0, 1.4, 0))
 	_flame = FX.particles(Color(1.0, 0.8, 0.35) * 2.0, 30, 0.8, 0.45,

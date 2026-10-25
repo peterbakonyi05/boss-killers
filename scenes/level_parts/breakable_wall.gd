@@ -20,7 +20,8 @@ func _ready() -> void:
 	_hp = break_health
 	Build.collision_box(self, Vector3(width, height, thickness), Vector3(0, height * 0.5, 0))
 	_rock = Build.pivot(self)
-	var stone := Build.mat(Color(0.4, 0.31, 0.3), 0.95)
+	var theme := LevelTheme.of(self)
+	var stone: Material = theme.surface_material("wall") if theme else Build.mat(Color(0.4, 0.31, 0.3), 0.95)
 	Build.part(_rock, Build.box(Vector3(width, height, thickness)), stone, Vector3(0, height * 0.5, 0))
 	_crack_mat = Build.glow(Color(1.0, 0.55, 0.2), 0.8)
 	# A zig-zag crack up both faces.

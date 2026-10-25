@@ -15,13 +15,20 @@ var _label: Label3D
 
 func _ready() -> void:
 	add_to_group("portals")
-	var stone := Build.mat(Color(0.25, 0.22, 0.26), 0.9)
+	var stone := Build.pbr("mossy_stone_wall", Color(0.6, 0.58, 0.65), 1.0, true)
 	var base := StaticBody3D.new()
 	add_child(base)
 	Build.part(base, Build.cylinder(2.6, 0.4), stone, Vector3(0, 0.2, 0))
 	Build.collision_box(base, Vector3(4.6, 0.4, 4.6), Vector3(0, 0.2, 0))
 	_ring_mat = Build.glow(Color(0.4, 0.38, 0.45), 0.3)
 	Build.part(self, Build.torus(1.8, 2.3), _ring_mat, Vector3(0, 2.6, 0), Vector3(90, 0, 0))
+	# Carved stone blocks around the ring, like an ancient gateway
+	for k in 12:
+		var a := k * TAU / 12.0
+		Build.part(self, Build.box(Vector3(0.45, 0.6, 0.6)), stone, Vector3(cos(a) * 2.35, 2.6 + sin(a) * 2.35, 0), Vector3(0, 0, rad_to_deg(a)))
+	for side in [-1.0, 1.0]:
+		Build.part(base, Build.box(Vector3(0.7, 4.4, 0.7)), stone, Vector3(side * 2.9, 2.2, 0))
+		Build.part(base, Build.box(Vector3(0.9, 0.3, 0.9)), stone, Vector3(side * 2.9, 4.5, 0))
 	var noise := FastNoiseLite.new()
 	noise.frequency = 0.03
 	var tex := NoiseTexture2D.new()
