@@ -45,6 +45,7 @@ var _safe_timer := 0.0
 var _hurt_flash := 0.0
 var _interactable = null
 var _lava_guard := 0.0   # touching two lava areas at once only hurts once
+var _touch_tick := 0.0
 
 var _model: Node3D
 var _body_pivot: Node3D
@@ -255,6 +256,7 @@ func _tick_timers(delta: float) -> void:
 		if _hurt_flash == 0.0:
 			_set_overlay(null)
 	if _shield_slot != "":
+		_shield_touch(delta)
 		_shield_left -= delta
 		var released := _shield_slot == "shield_strong" and not PlayerInput.pressed(player_index, "shield_strong")
 		if _shield_left <= 0.0 or released or is_down:
@@ -340,21 +342,35 @@ func _try_cast(strong: bool) -> bool:
 	var count := spell.strong_count if strong else spell.weak_count
 	var dmg := (spell.strong_damage if strong else spell.weak_damage) * GameState.upgrade_mult(element, slot)
 	var start := global_position + Vector3(0, 1.35, 0) + _aim_dir * 0.7
+	var setup := {
+		"team": "player",
+		"element": element,
+		"damage": dmg,
+		"speed": spell.strong_speed if strong else spell.weak_speed,
+		"radius": spell.strong_size if strong else spell.weak_size,
+		"color": spell.color,
+		"strong": strong,
+		"spell": spell,
+		"caster": self,
+		"life": 2.2 if strong else 1.4,
+		"style": spell.strong_style if strong else spell.weak_style,
+		"pierce": spell.strong_pierce if strong else spell.weak_pierce,
+		"homing": 0.0 if strong else spell.weak_homing,
+	}
+	if strong and spell.strong_from_sky:
+		# Meteor: falls from high above onto the target, with a warning circle.
+		var target := _sky_target(aim)
+		setup["sky_target"] = target
+		setup["life"] = 3.0
+		var high := target + Vector3(0, 11.0, 0) - _aim_dir * 3.0
+		Projectile.launch(self, high, target - high, setup)
+		PlayerInput.rumble(player_index, 0.3, 0.0, 0.12)
+		return true
 	for i in count:
 		var spread := 0.0 if count == 1 else lerpf(-0.12, 0.12, float(i) / float(count - 1))
 		var dir := aim.rotated(Vector3.UP, spread)
-		Projectile.launch(self, start + _aim_dir.cross(Vector3.UP) * spread * 2.0, dir, {
-			"team": "player",
-			"element": element,
-			"damage": dmg,
-			"speed": spell.strong_speed if strong else spell.weak_speed,
-			"radius": spell.strong_size if strong else spell.weak_size,
-			"color": spell.color,
-			"strong": strong,
-			"spell": spell,
-			"caster": self,
-			"life": 2.2 if strong else 1.4,
-		})
+		setup["spiral_phase"] = i * PI
+		Projectile.launch(self, start + _aim_dir.cross(Vector3.UP) * spread * 2.0, dir, setup)
 	if strong:
 		PlayerInput.rumble(player_index, 0.3, 0.0, 0.12)
 	return true
@@ -363,7 +379,20 @@ func _try_cast(strong: bool) -> bool:
 ## Where spells fly: toward the monster closest to the middle of the screen,
 ## or straight ahead if there is none (helps younger players hit things).
 func _aim_direction() -> Vector3:
-	var forward := Vector3.FORWARD.rotated(Vector3.UP, camera_rig.get_yaw() if camera_rig else _model.rotation.y)
+	var best := _aim_target()
+	if best:
+		var target := best.global_position + Vector3(0, float(best.get("aim_height")), 0)
+		return (target - (global_position + Vector3(0, 1.35, 0))).normalized()
+	return _aim_forward()
+
+
+func _aim_forward() -> Vector3:
+	return Vector3.FORWARD.rotated(Vector3.UP, camera_rig.get_yaw() if camera_rig else _model.rotation.y)
+
+
+## The monster spells aim at (null = none in front).
+func _aim_target() -> Node3D:
+	var forward := _aim_forward()
 	var origin := global_position + Vector3(0, 1.35, 0)
 	var best: Node3D = null
 	var best_score := INF
@@ -383,10 +412,21 @@ func _aim_direction() -> Vector3:
 		if score < best_score and _can_see(origin, target):
 			best_score = score
 			best = e
-	if best:
-		var target := best.global_position + Vector3(0, float(best.get("aim_height")), 0)
-		return (target - origin).normalized()
-	return forward
+	return best
+
+
+## Where a meteor lands: the aimed monster's feet, or the floor up to 12 m ahead.
+func _sky_target(aim: Vector3) -> Vector3:
+	var target := _aim_target()
+	if target:
+		return target.global_position
+	var space := get_world_3d().direct_space_state
+	var origin := global_position + Vector3(0, 1.35, 0)
+	var flat := Vector3(aim.x, 0, aim.z).normalized()
+	var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(origin, origin + flat * 12.0, 1))
+	var end: Vector3 = (hit["position"] as Vector3) - flat * 0.8 if not hit.is_empty() else origin + flat * 12.0
+	var down := space.intersect_ray(PhysicsRayQueryParameters3D.create(end, end + Vector3(0, -6, 0), 1))
+	return down["position"] if not down.is_empty() else end - Vector3(0, 1.35, 0)
 
 
 func _can_see(from: Vector3, to: Vector3) -> bool:
@@ -397,15 +437,34 @@ func _can_see(from: Vector3, to: Vector3) -> bool:
 func _try_shield(slot: String) -> void:
 	if _cooldowns[slot] > 0.0 or _shield_slot != "":
 		return
+	_touch_tick = 0.0
 	var strong := slot == "shield_strong"
 	var mult := GameState.upgrade_mult(element, slot)
 	_shield_slot = slot
 	if strong:
 		_shield_left = spell.shield_strong_duration * mult
-		_shield.raise(spell.color, spell.shield_strong_radius, spell.shield_strong_block, true)
+		_shield.raise(spell.color, spell.shield_strong_radius, spell.shield_strong_block, true, 1 if element == "fire" else 2)
 	else:
 		_shield_left = spell.shield_weak_duration * mult
-		_shield.raise(spell.color, spell.shield_weak_radius, minf(0.95, spell.shield_weak_block * mult), false)
+		_shield.raise(spell.color, spell.shield_weak_radius, minf(0.95, spell.shield_weak_block * mult), false, 1 if element == "fire" else 2)
+
+
+## Monsters pushing against a raised shield get burned (fire) or slowed (ice).
+func _shield_touch(delta: float) -> void:
+	_touch_tick -= delta
+	if _touch_tick > 0.0:
+		return
+	_touch_tick = 0.4
+	var reach := (spell.shield_strong_radius if _shield_slot == "shield_strong" else spell.shield_weak_radius) + 0.4
+	var center := global_position + Vector3(0, 1.0, 0)
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var e := node as Enemy
+		if e == null or e.dead:
+			continue
+		if e.global_position.distance_to(global_position) - e._radius > reach:
+			continue
+		e.hit(spell.shield_touch_dps * 0.4, element, spell, 1, self)
+		_shield.on_block(center + (e.global_position + Vector3(0, 1, 0) - center).normalized() * reach * 0.8)
 
 
 func _end_shield() -> void:

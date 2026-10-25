@@ -19,6 +19,18 @@ extends Resource
 @export var strong_splash_radius := 2.0
 ## How many projectiles fly out at once.
 @export var strong_count := 1
+## Look of the spell, see scripts/spell_visuals.gd (fireball, meteor, ice_comet, glacier_spear...).
+@export var strong_style := "fireball"
+## Monsters the spell flies through before it stops (0 = stops at the first).
+@export var strong_pierce := 0
+## Falls from the sky onto the target instead of flying straight (meteor).
+@export var strong_from_sky := false
+## What the strong spell leaves on the ground: "none", "fire_pool" (burns) or "frost_patch" (slows).
+@export_enum("none", "fire_pool", "frost_patch") var ground_effect := "none"
+@export var ground_radius := 1.6
+@export var ground_time := 3.0
+## Fire pool: damage per second. Frost patch: slow stacks per second.
+@export var ground_power := 3.0
 
 @export_group("Weak spell (R1)")
 @export var weak_name := "Flame Darts"
@@ -27,6 +39,10 @@ extends Resource
 @export var weak_speed := 28.0
 @export var weak_size := 0.16
 @export var weak_count := 1
+@export var weak_style := "ember_dart"
+@export var weak_pierce := 0
+## How fast the spell turns toward a monster (radians per second, 0 = flies straight).
+@export var weak_homing := 0.0
 
 @export_group("Strong shield (L2)")
 @export var shield_strong_name := "Flame Dome"
@@ -43,6 +59,8 @@ extends Resource
 @export var shield_weak_duration := 0.9
 @export var shield_weak_cooldown := 1.5
 @export var shield_weak_radius := 1.15
+## Monsters touching a raised shield take this much damage per second (fire burns, ice slows).
+@export var shield_touch_dps := 4.0
 
 @export_group("Fire effect: burn")
 ## Damage per second while a monster burns.

@@ -197,7 +197,8 @@ static func coins(from: Node, pos: Vector3, count: int, target: Node3D) -> void:
 static var _shield_shader: Shader
 
 ## See-through glowing bubble material (brighter at the edges).
-static func bubble_material(color: Color, strength := 1.0) -> ShaderMaterial:
+## pattern: 0 = soft bands, 1 = rising flames, 2 = ice crystal hexagons.
+static func bubble_material(color: Color, strength := 1.0, pattern := 0) -> ShaderMaterial:
 	if _shield_shader == null:
 		_shield_shader = Shader.new()
 		_shield_shader.code = """
@@ -205,15 +206,32 @@ shader_type spatial;
 render_mode unshaded, cull_disabled, blend_add, depth_draw_never, shadows_disabled;
 uniform vec4 color : source_color = vec4(1.0);
 uniform float strength = 1.0;
+uniform int pattern = 0;
 void fragment() {
 	float rim = pow(1.0 - abs(dot(NORMAL, VIEW)), 2.5);
-	float bands = 0.5 + 0.5 * sin(UV.y * 60.0 + TIME * 4.0);
-	ALBEDO = color.rgb * (0.6 + rim * 2.0);
-	ALPHA = clamp((0.12 + rim * 0.9 + bands * 0.04) * strength, 0.0, 1.0) * color.a;
+	float extra = (0.5 + 0.5 * sin(UV.y * 60.0 + TIME * 4.0)) * 0.04;
+	if (pattern == 1) {
+		// Tongues of fire licking upwards
+		float wave = sin(UV.x * 50.0 + sin(UV.y * 25.0 + TIME * 3.0) * 1.5);
+		float rise = 0.5 + 0.5 * sin(UV.y * 18.0 + TIME * 9.0 + wave);
+		extra = pow(max(wave, 0.0), 3.0) * rise * 0.45;
+	} else if (pattern == 2) {
+		// Hexagon crystal plates with bright edges
+		vec2 h = UV * vec2(36.0, 18.0);
+		vec2 r = vec2(1.0, 1.732);
+		vec2 a = mod(h, r) - r * 0.5;
+		vec2 b = mod(h - r * 0.5, r) - r * 0.5;
+		vec2 g = dot(a, a) < dot(b, b) ? a : b;
+		float d = max(abs(g.x), dot(abs(g), normalize(vec2(1.0, 1.732))));
+		extra = smoothstep(0.4, 0.48, d) * (0.35 + 0.15 * sin(TIME * 2.0 + h.x));
+	}
+	ALBEDO = color.rgb * (0.6 + rim * 2.0 + extra * 2.0);
+	ALPHA = clamp((0.12 + rim * 0.9 + extra) * strength, 0.0, 1.0) * color.a;
 }
 """
 	var m := ShaderMaterial.new()
 	m.shader = _shield_shader
 	m.set_shader_parameter("color", color)
 	m.set_shader_parameter("strength", strength)
+	m.set_shader_parameter("pattern", pattern)
 	return m

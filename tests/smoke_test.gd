@@ -104,6 +104,139 @@ func _check_theme() -> void:
 	_check(bodies == 0, "props have no collision")
 
 
+## A monster that stands still (no thinking), for aiming tests.
+func _dummy(pos: Vector3) -> Enemy:
+	var e := _spawn("res://scenes/enemies/brute.tscn", pos)
+	e.set_physics_process(false)
+	return e
+
+
+func _hurt(e: Enemy) -> bool:
+	return is_instance_valid(e) and e.health < e.max_health
+
+
+## Each spell's special behaviour: pierce, homing, meteor, ground patches, shield touch.
+func _check_spell_twists(fire: Wizard, ice: Wizard) -> void:
+	# Park the level's own monsters far away so they don't get in the way.
+	var parked := {}
+	for node in get_tree().get_nodes_in_group("enemies"):
+		var e := node as Enemy
+		parked[e] = e.global_position
+		e.set_physics_process(false)
+		e.global_position += Vector3(0, -40, 0)
+	var dummies: Array[Enemy] = []
+	fire.teleport(Vector3(-3, 0.3, -1))
+	ice.teleport(Vector3(0, 0.3, -1))
+	fire.camera_rig.set_yaw(0.0)
+	ice.camera_rig.set_yaw(0.0)
+	await _frames(5)
+
+	# Frost shards fly through the first monster into the second.
+	var a := _dummy(Vector3(0, 0, -5))
+	var b := _dummy(Vector3(0, 0, -9))
+	dummies.append_array([a, b])
+	await _frames(3)
+	ice._cooldowns["spell_weak"] = 0.0
+	ice.cast(false)
+	await _frames(30)
+	_check(_hurt(a) and _hurt(b), "frost shards pierce through a monster")
+	a.queue_free()
+	b.queue_free()
+	dummies.clear()
+	await _frames(2)
+
+	# Flame darts curve toward a monster that is off to the side.
+	var side := _dummy(Vector3(-0.5, 0, -10))
+	dummies.append(side)
+	var dart := Projectile.launch(fire, Vector3(-3, 1.35, -1.5), Vector3.FORWARD, {
+		"team": "player", "element": "fire", "damage": 5.0, "speed": 20.0, "radius": 0.16,
+		"color": fire.spell.color, "spell": fire.spell, "caster": fire, "style": "ember_dart",
+		"homing": fire.spell.weak_homing})
+	await _frames(40)
+	_check(_hurt(side) and not is_instance_valid(dart), "flame darts home in on a monster")
+	for d in dummies:
+		d.queue_free()
+	dummies.clear()
+	await _frames(2)
+
+	# Meteor (fire tier 2) drops from the sky onto the aimed monster and leaves a fire pool.
+	fire.spell = load("res://data/spells/fire_2.tres")
+	var target := _dummy(Vector3(-3, 0, -8))
+	dummies.append(target)
+	await _frames(3)
+	fire._cooldowns["spell_strong"] = 0.0
+	fire.cast(true)
+	await _frames(2)
+	var meteor: Projectile = null
+	for p in get_tree().get_nodes_in_group("projectiles"):
+		if (p as Projectile).sky_target != Vector3.INF:
+			meteor = p
+	_check(meteor != null and meteor.global_position.y > 8.0, "meteor starts high in the sky")
+	_check(meteor != null and meteor.sky_target.distance_to(target.global_position) < 0.5, "meteor aims at the monster")
+	await _frames(60)
+	_check(_hurt(target), "meteor hits the monster")
+	var pools := get_tree().get_nodes_in_group("ground_effects")
+	_check(pools.size() > 0 and (pools[0] as GroundEffect).kind == "fire_pool", "meteor leaves a fire pool")
+	if pools.size() > 0:
+		var walker := _dummy((pools[0] as Node3D).global_position)
+		dummies.append(walker)
+		await _frames(40)
+		_check(_hurt(walker) and walker._burn_left > 0.0, "fire pool burns a monster standing in it")
+
+	# Frost patch slows a monster standing in it.
+	var cold := _dummy(Vector3(3, 0, -6))
+	dummies.append(cold)
+	await _frames(2)
+	GroundEffect.spawn(ice, cold.global_position + Vector3(0, 0.5, 0), {"kind": "frost_patch", "radius": 1.6,
+		"time": 3.0, "power": 1.0, "spell": ice.spell, "caster": ice})
+	await _frames(70)
+	_check(cold._slow_stacks > 0 or cold._frozen_left > 0.0, "frost patch slows a monster")
+
+	# Glacier spear (ice tier 2) pierces a whole line of monsters.
+	ice.spell = load("res://data/spells/ice_2.tres")
+	for d in dummies:
+		d.queue_free()
+	dummies.clear()
+	await _frames(2)
+	for z in [-4.0, -6.5, -9.0]:
+		dummies.append(_dummy(Vector3(0, 0, z)))
+	await _frames(3)
+	ice._cooldowns["spell_strong"] = 0.0
+	ice.cast(true)
+	await _frames(30)
+	_check(dummies.all(func(d: Enemy) -> bool: return _hurt(d)), "glacier spear pierces three monsters")
+	for d in dummies:
+		d.queue_free()
+	dummies.clear()
+
+	# Monsters touching a raised shield get burned / slowed.
+	var pusher := _dummy(fire.global_position + Vector3(0, 0, -1.6))
+	var pusher2 := _dummy(ice.global_position + Vector3(0, 0, -1.6))
+	await _frames(2)
+	# Quick shields: the big ones drop at once when no button is held.
+	fire._cooldowns["shield_weak"] = 0.0
+	ice._cooldowns["shield_weak"] = 0.0
+	fire._try_shield("shield_weak")
+	ice._try_shield("shield_weak")
+	await _frames(30)
+	_check(pusher._burn_left > 0.0, "fire shield burns a monster touching it")
+	_check(pusher2._slow_stacks > 0, "ice shield slows a monster touching it")
+	fire._end_shield()
+	ice._end_shield()
+	pusher.queue_free()
+	pusher2.queue_free()
+	fire.spell = GameState.spell_data("fire")
+	ice.spell = GameState.spell_data("ice")
+	for e in parked:
+		if is_instance_valid(e):
+			e.global_position = parked[e]
+			e.set_physics_process(true)
+	for slot in Wizard.SLOTS:
+		fire._cooldowns[slot] = 0.0
+		ice._cooldowns[slot] = 0.0
+	await _frames(5)
+
+
 func _run() -> void:
 	var fire := game.wizards[0]
 	var ice := game.wizards[1]
@@ -172,6 +305,8 @@ func _run() -> void:
 	_check(imp3._frozen_left > 0.0, "ice hits freeze a monster")
 	imp3.hit(1.0, "fire", GameState.spell_data("fire"), 1, fire)
 	_check(imp3._frozen_left <= 0.0, "fire shatters the freeze")
+
+	await _check_spell_twists(fire, ice)
 
 	# Lava trench: an ice spell over the lava freezes a bridge
 	var trench := game.level.get_node("LavaTrench") as LavaTrench

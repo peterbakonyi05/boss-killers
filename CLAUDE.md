@@ -44,11 +44,11 @@ Gotchas (all hit before):
 | `scenes/game.gd` | runs a level: split screen, wizards, checkpoints, items, secrets, finish | — |
 | `scenes/wizard/` | player movement, spells, shields, revive; camera rig | — |
 | `scenes/enemies/` | `enemy.gd` state machine + one scene per monster | `scenes/enemies/CLAUDE.md` |
-| `scenes/magic/` | `Projectile` (shape-query hits), `Shield` | — |
+| `scenes/magic/` | `Projectile` (shape-query hits, pierce, homing, meteor from sky), `Shield` (touch burn/slow), `GroundEffect` (fire pool, frost patch) | — |
 | `scenes/level_parts/` | arena, gate, checkpoint, lava, doors, chests, ... | `scenes/level_parts/CLAUDE.md` |
 | `scenes/levels/` | level layouts (`level_01.tscn`), themes and how to add a level style | `scenes/levels/CLAUDE.md` |
 | `scenes/ui/`, `main_menu.gd` | HUD, overlay, pause, level complete, shop | `scenes/ui/CLAUDE.md` |
-| `scripts/` | `Build` (meshes, materials, `pbr()` textures, `model()`), `FX` (particles, coins, text), `Props` (decoration kinds), `AmbientFX` (spooky mood), `UIUtil`, data classes | — |
+| `scripts/` | `Build` (meshes, materials, `pbr()` textures, `model()`), `FX` (particles, coins, text), `Props` (decoration kinds), `AmbientFX` (spooky mood), `SpellVisuals` (per-spell looks/impacts, flame and ice shaders), `UIUtil`, data classes | — |
 | `tests/` | smoke, menu and screenshot scripts | `tests/CLAUDE.md` |
 
 Flow: `main_menu.tscn` → `game.tscn` (loads `GameState.level_data().scene_path`) →

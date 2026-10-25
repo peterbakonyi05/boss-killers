@@ -10,7 +10,10 @@ the class with a `##` comment **and** to the `.tres` file.
   items, goal text. A level "exists" when this file exists.
 - `spells/<element>_<tier>.tres` — one magic set per element and tier (names,
   damage, cooldowns, shield, burn/slow/freeze numbers). Missing tiers fall back to
-  the highest existing one.
+  the highest existing one. Each spell also has a twist: `*_style` (look in
+  `SpellVisuals`), `*_pierce`, `weak_homing`, `strong_from_sky` (meteor),
+  `ground_effect` + `ground_radius/time/power`, `shield_touch_dps`. Twists are
+  checked in `smoke_test.gd` `_check_spell_twists`.
 - `riddles.json` — `[{id, question, answers[3], correct}]`, kid-friendly.
 - `themes/<style>.tres` — `LevelTheme`: fog, light, textures, props, spooky extras
   (see `scenes/levels/CLAUDE.md`, "Themes").

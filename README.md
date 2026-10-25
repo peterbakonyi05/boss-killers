@@ -45,6 +45,20 @@ Menus: D-pad to choose, Cross to press. In the shop, Options starts the next lev
 - **Fights:** path monsters, and arenas that lock their gates and send waves.
   Monsters telegraph their attacks (imps lunge, brutes and bosses charge, spitters
   shoot). Fire burns, ice slows and freezes, and fire shatters frozen monsters.
+- **Magic:** every spell does something different (tier 2 unlocks after level 1):
+
+  | Wizard | Spell | What it does |
+  |---|---|---|
+  | Fire | Fireball (strong) | rolling fireball, leaves a small burning pool |
+  | Fire | Flame Darts (fast) | quick embers that curve toward monsters |
+  | Fire | Meteor (strong, tier 2) | falls from the sky onto the target (red warning ring), big blast and fire pool |
+  | Fire | Twin Flames (fast, tier 2) | two flames spiralling around each other, they curve toward monsters |
+  | Ice | Ice Comet (strong) | crystal comet, leaves a frost patch that slows monsters |
+  | Ice | Frost Shards (fast) | spinning shards that fly through one monster into the next |
+  | Ice | Glacier Spear (strong, tier 2) | long ice lance that goes through a whole line of monsters, ice spikes behind it |
+  | Ice | Twin Icicles (fast, tier 2) | two spinning icicles that each go through one monster |
+
+  Shields: fire domes burn monsters that push against them, ice domes slow them.
 - **Falling:** a fallen wizard gets back up after a few seconds. If both fall,
   the team goes back to the last checkpoint.
 - **Money and shop:** monsters and treasure chests give team money. Between levels
@@ -53,8 +67,9 @@ Menus: D-pad to choose, Cross to press. In the shop, Options starts the next lev
   The level complete screen shows how many were found.
 - Progress is saved to `user://save.json` after each level and after shopping.
 
-Only Level 1 is built so far. Later level numbers replay the newest built
-layout with stronger monsters.
+Only Level 1 ("Haunted Caves" style) is built so far. Later level numbers replay the
+newest built layout with stronger monsters. Levels get their look from a theme
+(`data/themes/`), so new styles like forest, swamp or moon are quick to add.
 
 ## Tests
 
@@ -74,17 +89,19 @@ Each test prints `PASS`/`FAIL` lines and exits with code 1 on failure.
 
 ```
 autoload/       GameState (money, level, saves) and PlayerInput (both players' controls)
-data/           Balance numbers, level settings, spell sets, riddles (.tres / .json)
+assets/         CC0 textures and models from Poly Haven (see assets/CREDITS.md)
+data/           Balance numbers, level settings, spell sets, themes, riddles (.tres / .json)
 scenes/
   game.*        One level in split screen: wizards, checkpoints, items, finishing
   main_menu.*   Title screen with player join
   wizard/       Player wizard and camera
   enemies/      One monster script, one scene per monster type
-  magic/        Projectiles and shields
+  magic/        Projectiles, shields and ground effects (fire pool, frost patch)
   level_parts/  Reusable level pieces (arena, gate, lava, doors, chests, ...)
   levels/       Level layouts
   ui/           HUD, overlay, pause, level complete, shop
-scripts/        Shared helpers: Build (shapes), FX (particles), UIUtil, data classes
+scripts/        Shared helpers: Build (shapes, textures, models), FX (particles), SpellVisuals,
+                Props (decorations), AmbientFX (spooky mood), UIUtil, data classes
 tests/          Headless tests and screenshot scripts
 ```
 
