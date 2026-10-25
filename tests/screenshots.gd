@@ -148,6 +148,21 @@ func _ready() -> void:
 	ice.camera_rig.set_yaw(0.0)
 	await _wait(1.0)
 	await _shot("17_prop_gallery")
+
+	# Monster close-up: every look side by side, facing the cameras
+	gallery.queue_free()
+	var mx := -4.5
+	for path in ["imp", "spitter", "brute", "demon_knight"]:
+		var m: Enemy = (load("res://scenes/enemies/%s.tscn" % path) as PackedScene).instantiate()
+		m.aggro_range = 0.0
+		game.level.add_child(m)
+		m.global_position = Vector3(mx, 0, -9)
+		m.rotation.y = PI
+		mx += 3.0
+	fire.teleport(Vector3(-2.0, 0.3, -3))
+	ice.teleport(Vector3(2.0, 0.3, -3))
+	await _wait(1.0)
+	await _shot("18_monster_closeup")
 	get_tree().quit()
 
 

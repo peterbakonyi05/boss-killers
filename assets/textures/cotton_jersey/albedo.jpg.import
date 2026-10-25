@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://co5pguhksg4xs"
-path.s3tc="res://.godot/imported/albedo.jpg-dd276f0a24f83af37adf108282b78999.s3tc.ctex"
+uid="uid://cb2wbv5yt6olf"
+path.s3tc="res://.godot/imported/albedo.jpg-8924a11984449a080635ed3cee33752b.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/textures/denim_fabric_03/albedo.jpg"
-dest_files=["res://.godot/imported/albedo.jpg-dd276f0a24f83af37adf108282b78999.s3tc.ctex"]
+source_file="res://assets/textures/cotton_jersey/albedo.jpg"
+dest_files=["res://.godot/imported/albedo.jpg-8924a11984449a080635ed3cee33752b.s3tc.ctex"]
 
 [params]
 
