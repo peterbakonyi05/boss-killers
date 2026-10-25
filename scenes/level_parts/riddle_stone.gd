@@ -18,7 +18,7 @@ func _ready() -> void:
 	add_to_group("interactable")
 	collision_layer = 1
 	Build.collision_box(self, Vector3(1.4, 2.8, 0.8), Vector3(0, 1.4, 0))
-	var stone := Build.mat(Color(0.28, 0.25, 0.3), 0.95)
+	var stone := Build.pbr("mossy_stone_wall", Color(0.7, 0.68, 0.75), 1.0, true)
 	Build.part(self, Build.box(Vector3(1.4, 2.8, 0.8)), stone, Vector3(0, 1.4, 0))
 	Build.part(self, Build.box(Vector3(1.7, 0.3, 1.1)), stone, Vector3(0, 0.15, 0))
 	Build.part(self, Build.sphere(0.55), stone, Vector3(0, 2.8, 0), Vector3.ZERO, Vector3(1.3, 0.6, 0.75))
@@ -30,6 +30,10 @@ func _ready() -> void:
 		Build.part(self, Build.box(Vector3(0.4, 0.08, 0.02)), _rune_mat, Vector3(0, 1.2, z), Vector3(0, 0, 35))
 		Build.part(self, Build.sphere(0.12), _rune_mat, Vector3(0, 0.8, z), Vector3.ZERO, Vector3(1, 1, 0.2))
 	_light = Build.light(self, Color(0.7, 0.4, 1.0), 2.0, 7.0, Vector3(0, 2.0, 1.2))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 3
+	for side in [-1.0, 1.0]:
+		Props.spawn("skull", self, Vector3(side * 0.6, 0.3, -0.5), side * 0.4, rng)
 	_label = Build.label3d(self, "RIDDLE STONE", Vector3(0, 3.6, 0), 44, Color(0.85, 0.65, 1.0))
 
 
