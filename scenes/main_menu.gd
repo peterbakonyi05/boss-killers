@@ -159,6 +159,8 @@ func _join(p: int) -> void:
 
 func _process(delta: float) -> void:
 	_time += delta
+	if _menu.visible:
+		UIUtil.ensure_focus(_first_button)
 	_title_fire.add_theme_color_override("font_color", UIUtil.FIRE_COLOR.lerp(Color(1, 0.8, 0.3), 0.5 + 0.5 * sin(_time * 3.0)))
 	_title_ice.add_theme_color_override("font_color", UIUtil.ICE_COLOR.lerp(Color(0.85, 0.97, 1.0), 0.5 + 0.5 * sin(_time * 3.0 + 1.5)))
 

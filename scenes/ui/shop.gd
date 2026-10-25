@@ -48,6 +48,13 @@ func _ready() -> void:
 	_next_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_next_button.pressed.connect(_on_next)
 	box.add_child(_next_button)
+	var hints := HBoxContainer.new()
+	hints.alignment = BoxContainer.ALIGNMENT_CENTER
+	hints.add_theme_constant_override("separation", 28)
+	hints.add_child(UIUtil.hint_row("dpad_up", -1, "", "Choose", 20))
+	hints.add_child(UIUtil.hint_row("cross", -1, "", "Buy", 20))
+	hints.add_child(UIUtil.hint_row("options", -1, "", "Start next level", 20))
+	box.add_child(hints)
 	_refresh()
 	GameState.save_game()
 	await get_tree().process_frame
@@ -123,6 +130,16 @@ func _refresh() -> void:
 				button.add_theme_color_override("font_color", Color(0.55, 0.48, 0.45))
 			else:
 				button.remove_theme_color_override("font_color")
+
+
+func _process(_delta: float) -> void:
+	UIUtil.ensure_focus(_next_button)
+	for p in PlayerInput.PLAYER_COUNT:
+		if PlayerInput.just_pressed(p, "back"):
+			_next_button.grab_focus()
+		elif PlayerInput.just_pressed(p, "pause"):
+			_on_next()
+			return
 
 
 func _on_buy(element: String, slot: String) -> void:

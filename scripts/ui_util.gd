@@ -77,6 +77,13 @@ static func theme() -> Theme:
 	return t
 
 
+## Gives the button focus when nothing has it (for example after a mouse click
+## on the background), so the D-pad and Cross keep working in menus.
+static func ensure_focus(button: Control) -> void:
+	if button and button.is_visible_in_tree() and button.get_viewport().gui_get_focus_owner() == null:
+		button.grab_focus()
+
+
 static func button(text: String, font_size := 28) -> Button:
 	var b := Button.new()
 	b.text = text

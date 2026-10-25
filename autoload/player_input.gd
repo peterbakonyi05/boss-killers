@@ -87,7 +87,19 @@ func _ready() -> void:
 	for i in mini(PLAYER_COUNT, pads.size()):
 		player_device[i] = pads[i]
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
+	_add_menu_buttons()
 	rebuild()
+
+
+## Godot's menu actions only know the keyboard (and D-pad). Let any controller's
+## Cross press menu buttons and Circle go back.
+func _add_menu_buttons() -> void:
+	for pair in [["ui_accept", JOY_BUTTON_A], ["ui_cancel", JOY_BUTTON_B]]:
+		var button := InputEventJoypadButton.new()
+		button.device = -1
+		button.button_index = pair[1]
+		if not InputMap.action_has_event(pair[0], button):
+			InputMap.action_add_event(pair[0], button)
 
 
 func action(player: int, action_name: String) -> StringName:

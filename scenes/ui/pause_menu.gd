@@ -56,6 +56,8 @@ func _process(_delta: float) -> void:
 		if visible and PlayerInput.just_pressed(p, "back"):
 			close()
 			return
+	if visible:
+		UIUtil.ensure_focus(_first_button)
 
 
 func open() -> void:
@@ -67,6 +69,8 @@ func open() -> void:
 func close() -> void:
 	visible = false
 	get_tree().paused = false
+	# Hidden buttons must not keep focus, or Cross in the game could press them.
+	get_viewport().gui_release_focus()
 
 
 func _on_restart() -> void:

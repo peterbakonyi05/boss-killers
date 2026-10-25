@@ -1,6 +1,7 @@
 extends Node
 ## Takes screenshots of Level 1 in a real window (not headless). Run with:
-##   Godot --path . res://tests/screenshots.tscn -- <output folder>
+##   Godot --always-on-top --path . res://tests/screenshots.tscn -- <output folder>
+## (--always-on-top: macOS stops drawing hidden windows, which makes the script hang.)
 
 var game: Game
 var out_dir := "user://screenshots"
