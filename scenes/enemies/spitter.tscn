@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/enemies/enemy.gd" id="1_enemy"]
+
+[node name="Spitter" type="CharacterBody3D"]
+script = ExtResource("1_enemy")
+display_name = "Spitter Imp"
+base_health = 40.0
+base_damage = 9.0
+move_speed = 5.0
+attack_range = 1.7
+attack_cooldown = 1.6
+windup_time = 0.55
+ranged = true
+ranged_range = 15.0
+projectile_speed = 14.0
+aggro_range = 16.0
+money_size = "small"
+body_color = Color(0.2, 0.35, 0.12, 1)
+eye_color = Color(0.7, 1, 0.2, 1)
+strafe_speed = 3.2

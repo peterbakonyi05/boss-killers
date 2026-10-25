@@ -28,6 +28,15 @@ enum Look { IMP, BRUTE, KNIGHT }
 ## Mini-boss: big health bar on screen and special attacks.
 @export var is_boss := false
 
+@export_group("Special moves")
+## Melee monsters jump at the wizard from this far away (0 = no lunge).
+@export var lunge_distance := 0.0
+## Running charge at wizards that are a bit far away (0 = never charges).
+@export var charge_speed := 0.0
+@export var charge_cooldown := 6.0
+## Ranged monsters side-step at this speed while reloading (0 = stand still).
+@export var strafe_speed := 0.0
+
 var health := 30.0
 var max_health := 30.0
 ## Money this monster gave the team when it died.
@@ -45,6 +54,15 @@ var _windup_left := 0.0
 var _attack_kind := ""
 var _volley_timer := 2.0
 var _enraged := false
+var _charge_timer := 2.0
+var _strafe_dir := 1.0
+var _strafe_timer := 0.0
+
+# Lunges and charges move the monster in a straight line for a short time.
+var _dash_dir := Vector3.ZERO
+var _dash_speed := 0.0
+var _dash_left := 0.0
+var _dash_can_hit := false
 
 var _burn_left := 0.0
 var _burn_dps := 0.0
@@ -72,6 +90,7 @@ var _burn_fx: GPUParticles3D
 var _bar_bg: Sprite3D
 var _bar_fg: Sprite3D
 var _telegraph: MeshInstance3D
+var _charge_line: MeshInstance3D
 var _anim_time := 0.0
 var _radius := 0.45
 var _height := 1.2
@@ -281,15 +300,19 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y = maxf(velocity.y, -1.0)
 	var move := Vector3.ZERO
+	var speed := move_speed * _speed_mult()
+	if _enraged:
+		speed *= 1.25
 	if _frozen_left > 0.0:
-		pass
+		_end_dash()
+	elif _dash_left > 0.0:
+		move = _dash_dir
+		speed = _dash_speed * _speed_mult()
+		_update_dash(delta)
 	elif _stagger > 0.0:
 		_stagger -= delta
 	else:
 		move = _think(delta)
-	var speed := move_speed * _speed_mult()
-	if _enraged:
-		speed *= 1.25
 	velocity.x = move.x * speed
 	velocity.z = move.z * speed
 	move_and_slide()
@@ -305,6 +328,7 @@ func _speed_mult() -> float:
 func _tick_status(delta: float) -> void:
 	_attack_timer = maxf(0.0, _attack_timer - delta)
 	_volley_timer = maxf(0.0, _volley_timer - delta)
+	_charge_timer = maxf(0.0, _charge_timer - delta)
 	_freeze_immune = maxf(0.0, _freeze_immune - delta)
 	if _flash > 0.0:
 		_flash = maxf(0.0, _flash - delta * 6.0)
@@ -368,7 +392,7 @@ func _think(delta: float) -> Vector3:
 	var keep_away := ranged and dist < ranged_range * 0.7
 	if keep_away:
 		_face(to_target, delta, 8.0)
-		return Vector3.ZERO
+		return _strafe(to_target, delta)
 	if dist < attack_range * 0.8:
 		_face(to_target, delta, 8.0)
 		return Vector3.ZERO
@@ -377,11 +401,30 @@ func _think(delta: float) -> Vector3:
 	return dir
 
 
+## Side-steps left and right so ranged monsters are harder to hit.
+func _strafe(to_target: Vector3, delta: float) -> Vector3:
+	if strafe_speed <= 0.0:
+		return Vector3.ZERO
+	_strafe_timer -= delta
+	if _strafe_timer <= 0.0 or is_on_wall():
+		_strafe_timer = randf_range(0.8, 1.8)
+		_strafe_dir = -_strafe_dir
+	var side := to_target.normalized().cross(Vector3.UP) * _strafe_dir
+	return side * (strafe_speed / move_speed)
+
+
+func _wants_charge(dist: float, head: Vector3) -> bool:
+	return charge_speed > 0.0 and _charge_timer <= 0.0 and dist > 5.0 and dist < 16.0 \
+		and _can_see(head, _target_chest())
+
+
 func _choose_attack(dist: float) -> String:
 	var head := global_position + Vector3(0, aim_height, 0)
 	if is_boss:
 		if dist < 4.5:
 			return "slam"
+		if _wants_charge(dist, head):
+			return "charge"
 		if _volley_timer <= 0.0 and dist < 22.0 and _can_see(head, _target_chest()):
 			return "volley"
 		return ""
@@ -389,7 +432,9 @@ func _choose_attack(dist: float) -> String:
 		if dist < ranged_range and _can_see(head, _target_chest()):
 			return "shoot"
 		return ""
-	if dist < attack_range + 0.3:
+	if _wants_charge(dist, head):
+		return "charge"
+	if dist < attack_range + 0.3 + lunge_distance:
 		return "slam" if look == Look.BRUTE else "melee"
 	return ""
 
@@ -401,6 +446,9 @@ func _start_windup(kind: String) -> void:
 	if kind == "slam":
 		_windup_left = windup_time * (1.6 if is_boss else 1.2)
 		_show_telegraph(_slam_radius())
+	elif kind == "charge":
+		_windup_left = maxf(0.8, windup_time * 1.4)
+		_show_charge_line()
 	var tw := create_tween()
 	tw.tween_property(_body, "scale", Vector3(1.1, 0.9, 1.1), _windup_left * 0.8)
 	tw.tween_property(_body, "scale", Vector3.ONE, 0.1)
@@ -422,10 +470,18 @@ func _do_attack() -> void:
 		_eye_mat.emission_energy_multiplier = 6.0 if not _enraged else 10.0
 	if _target == null:
 		return
+	var to_target := _target.global_position - global_position
+	to_target.y = 0.0
 	match _attack_kind:
 		"melee":
-			if _target.global_position.distance_to(global_position) < attack_range + 0.8:
+			if lunge_distance > 0.0:
+				# Jump at the wizard: only hits if they don't get out of the way.
+				_start_dash(to_target, clampf(to_target.length() - 0.5, 0.5, lunge_distance + attack_range), 0.2)
+			elif to_target.length() < attack_range + 0.8:
 				_target.take_damage(damage, global_position)
+		"charge":
+			_charge_timer = charge_cooldown
+			_start_dash(_forward(), charge_speed * 1.1, 1.1)
 		"slam":
 			var center := global_position + _forward() * (_slam_radius() * 0.6)
 			FX.burst(self, center + Vector3(0, 0.2, 0), Color(1.0, 0.5, 0.2) * 1.5, 40, 8.0, 0.4, 0.6,
@@ -461,6 +517,69 @@ func _shoot(at: Vector3, count: int, spread: float) -> void:
 		})
 
 
+func _start_dash(dir: Vector3, distance: float, time: float) -> void:
+	dir.y = 0.0
+	if dir.length() < 0.01:
+		return
+	_dash_dir = dir.normalized()
+	_dash_speed = distance / time
+	_dash_left = time
+	_dash_can_hit = true
+	_face(_dash_dir, 1.0, 100.0)
+
+
+func _update_dash(delta: float) -> void:
+	_dash_left -= delta
+	var charging := _attack_kind == "charge"
+	if _dash_can_hit:
+		for w in get_tree().get_nodes_in_group("wizards"):
+			var wiz := w as Wizard
+			if wiz == null or wiz.is_down:
+				continue
+			var gap := wiz.global_position - global_position
+			gap.y = 0.0
+			if gap.length() < _radius + 0.9:
+				_dash_can_hit = false
+				wiz.take_damage(damage * (1.3 if charging else 1.0), global_position)
+				if charging:
+					wiz.velocity += _dash_dir * 9.0 + Vector3.UP * 5.0
+				break
+	# A charge that runs into a wall stuns the monster: time to hit back!
+	if charging and is_on_wall() and _dash_left < 1.0:
+		_end_dash()
+		_stagger = 1.4
+		FX.burst(self, global_position + _forward() * _radius + Vector3(0, _height * 0.5, 0),
+			Color(0.5, 0.45, 0.4, 0.8), 18, 4.0, 0.9, 0.8, {"smoke": true})
+		FX.float_text(self, global_position + Vector3(0, _height + 0.5, 0), "DIZZY!", Color(1.0, 0.9, 0.4))
+		return
+	if _dash_left <= 0.0:
+		_end_dash()
+
+
+func _end_dash() -> void:
+	_dash_left = 0.0
+	_dash_can_hit = false
+	if _charge_line:
+		_charge_line.visible = false
+
+
+## A long glowing strip in front of the monster: "I'm about to charge this way!"
+func _show_charge_line() -> void:
+	var length := charge_speed * 1.1
+	if _charge_line == null:
+		_charge_line = MeshInstance3D.new()
+		_charge_line.mesh = Build.box(Vector3(_radius * 2.0, 0.04, 1.0))
+		var m := Build.glow(Color(1.0, 0.1, 0.05), 2.0)
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.albedo_color.a = 0.35
+		_charge_line.material_override = m
+		_charge_line.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_model.add_child(_charge_line)
+	_charge_line.visible = true
+	_charge_line.position = Vector3(0, 0.05, -length * 0.5)
+	_charge_line.scale = Vector3(1, 1, length)
+
+
 func _show_telegraph(radius: float) -> void:
 	if _telegraph == null:
 		_telegraph = MeshInstance3D.new()
@@ -480,6 +599,8 @@ func _show_telegraph(radius: float) -> void:
 func _hide_telegraph() -> void:
 	if _telegraph:
 		_telegraph.visible = false
+	if _charge_line and _dash_left <= 0.0:
+		_charge_line.visible = false
 
 
 func _forward() -> Vector3:
@@ -588,7 +709,8 @@ func hit(amount: float, element: String, spell: SpellData, stacks: int, source: 
 		_state = "chase"
 		if source is Wizard:
 			_target = source as Wizard
-	if not is_boss and look == Look.IMP:
+	# Only big hits make imps flinch, so fast spells can't keep them stuck.
+	if not is_boss and look == Look.IMP and amount >= max_health * 0.3:
 		_stagger = 0.12
 	_apply_damage(amount, true)
 
@@ -605,8 +727,18 @@ func _apply_damage(amount: float, flash: bool) -> void:
 		_enraged = true
 		_eye_mat.emission_energy_multiplier = 8.0
 		FX.float_text(self, global_position + Vector3(0, _height + 0.8, 0), "ENRAGED!", Color(1, 0.3, 0.2), 90)
+		_summon_helpers()
 	if health <= 0.0:
 		die()
+
+
+## An enraged boss calls two imps into its arena.
+func _summon_helpers() -> void:
+	var arena := get_parent()
+	if not arena.has_method("summon"):
+		return
+	for side in [-1.0, 1.0]:
+		arena.summon("imp", global_position + _model.global_basis.x * side * 3.0)
 
 
 func _refresh_overlay() -> void:
@@ -673,6 +805,7 @@ func die() -> void:
 	collision_layer = 0
 	collision_mask = 0
 	_update_health_bar()
+	_end_dash()
 	_hide_telegraph()
 	if _burn_fx:
 		_burn_fx.emitting = false

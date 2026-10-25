@@ -29,6 +29,23 @@ func _frames(n: int) -> void:
 		await get_tree().physics_frame
 
 
+func _spawn(scene_path: String, pos: Vector3) -> Enemy:
+	var enemy: Enemy = (load(scene_path) as PackedScene).instantiate()
+	enemy.always_aggro = true
+	game.level.add_child(enemy)
+	enemy.global_position = pos
+	return enemy
+
+
+## Waits up to max_frames physics frames for the condition to become true.
+func _wait_for(condition: Callable, max_frames: int) -> bool:
+	for i in max_frames:
+		if condition.call():
+			return true
+		await get_tree().physics_frame
+	return false
+
+
 func _alive_monster(name: String) -> Enemy:
 	return game.level.get_node_or_null("PathMonsters/" + name) as Enemy
 
@@ -215,6 +232,31 @@ func _run() -> void:
 	_check(arena2._earned > 0, "arena counts money from its monsters")
 	arena2.reset()
 	_check(GameState.money == money_before_kill, "arena money taken back when the fight restarts")
+
+	# Special moves: imps lunge, brutes charge, an enraged boss calls helpers
+	for w in [fire, ice]:
+		if w.is_down:
+			w.revive(true)
+	ice.teleport(Vector3(0, 0.3, -20))
+	fire.teleport(Vector3(0, 0.3, -46))
+	var imp := _spawn("res://scenes/enemies/imp.tscn", Vector3(0, 0, -52))
+	_check(await _wait_for(func() -> bool: return imp._attack_kind == "melee" and imp._dash_left > 0.0, 300), "imp lunges at a wizard")
+	imp.die()
+	var brute := _spawn("res://scenes/enemies/brute.tscn", Vector3(0, 0, -60))
+	_check(await _wait_for(func() -> bool: return brute._attack_kind == "charge" and brute._dash_left > 0.0, 400), "brute charges at a far wizard")
+	brute.die()
+	var big := game.level.get_node("BigArena") as Arena
+	big.state = "active"
+	var knight: Enemy = (load("res://scenes/enemies/demon_knight.tscn") as PackedScene).instantiate()
+	big.add_child(knight)
+	knight.global_position = big.global_position
+	await _frames(2)
+	knight.hit(knight.max_health * 0.6, "fire", null, 1, fire)
+	_check(knight._enraged, "boss gets enraged at half health")
+	await _frames(60)
+	_check(big._alive.size() >= 2, "enraged boss calls imps into the arena")
+	knight.die()
+	big.reset()
 
 	# Finishing the level unlocks the next magic set
 	game.finish_level()

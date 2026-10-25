@@ -23,8 +23,8 @@ extends Resource
 ## Part of the health a wizard gets back after reviving (0.5 = half).
 @export var revive_health := 0.5
 ## Seconds without getting hit before health starts coming back.
-@export var regen_delay := 4.0
-@export var regen_per_second := 4.0
+@export var regen_delay := 5.0
+@export var regen_per_second := 3.0
 ## Damage taken when falling into lava.
 @export var lava_damage := 20.0
 
