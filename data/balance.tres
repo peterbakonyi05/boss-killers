@@ -15,6 +15,7 @@ revive_health = 0.5
 regen_delay = 5.0
 regen_per_second = 3.0
 lava_damage = 20.0
+water_damage = 15.0
 price_spell_strong = 900
 price_spell_weak = 400
 price_shield_strong = 600

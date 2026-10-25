@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/enemies/enemy.gd" id="1_enemy"]
+
+[node name="JungleDemon" type="CharacterBody3D"]
+script = ExtResource("1_enemy")
+look = 7
+display_name = "Jungle Demon"
+base_health = 1200.0
+base_damage = 22.0
+move_speed = 3.6
+attack_range = 3.6
+attack_cooldown = 1.6
+windup_time = 0.65
+ranged_range = 22.0
+projectile_speed = 12.0
+aggro_range = 40.0
+money_size = "big"
+body_color = Color(0.35, 0.26, 0.18, 1)
+eye_color = Color(0.55, 1, 0.2, 1)
+is_boss = true
+charge_speed = 14.0
+charge_cooldown = 7.0

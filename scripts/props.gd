@@ -9,13 +9,15 @@ const KINDS := [
 	"rock_small", "rock_mossy", "boulder", "dead_log", "barrel", "barrel_pile", "crate",
 	"bucket", "statue", "fallen_knight", "lantern", "cage", "chandelier", "skull",
 	"skull_pile", "bones", "candles", "cobweb", "chains", "gravestone", "coffin",
-	"mushrooms", "crystals",
+	"mushrooms", "crystals", "jungle_tree", "fern", "big_leaves", "vines", "ruin_pillar",
+	"glow_flowers", "skull_totem",
 ]
 
 static var _bone_mat: StandardMaterial3D
 static var _dark_mat: StandardMaterial3D
 static var _wax_mat: StandardMaterial3D
 static var _web_mat: ShaderMaterial
+static var _leaf_mat: StandardMaterial3D
 
 
 ## Builds one prop under parent. rng picks sizes/variants (seeded = same every load).
@@ -103,6 +105,21 @@ static func spawn(kind: String, parent: Node3D, pos: Vector3, yaw: float,
 			_mushrooms(root, rng)
 		"crystals":
 			_crystals(root, rng, theme)
+		"jungle_tree":
+			_jungle_tree(root, rng)
+		"fern":
+			_fern(root, rng, rng.randf_range(0.8, 1.3))
+		"big_leaves":
+			_big_leaves(root, rng)
+		"vines":
+			for i in rng.randi_range(2, 4):
+				_vine(root, Vector3(rng.randf_range(-0.8, 0.8), 0, -0.08), rng.randf_range(1.8, 4.0), rng)
+		"ruin_pillar":
+			_ruin_pillar(root, rng, theme)
+		"glow_flowers":
+			_glow_flowers(root, rng)
+		"skull_totem":
+			_skull_totem(root, rng)
 		_:
 			ok = false
 	if not ok:
@@ -276,3 +293,118 @@ static func _crystals(parent: Node3D, rng: RandomNumberGenerator, theme: LevelTh
 			Vector3(rng.randf_range(-0.3, 0.3), h * 0.4, rng.randf_range(-0.2, 0.2)),
 			Vector3(rng.randf_range(-25, 25), 0, rng.randf_range(-25, 25)))
 		(c.mesh as CylinderMesh).radial_segments = 6
+
+
+## Green leaf material shared by all plants (thin parts, seen from both sides).
+static func _leaf(shade := 1.0) -> StandardMaterial3D:
+	if _leaf_mat == null:
+		_leaf_mat = Build.pbr("forest_leaves_02", Color(0.3, 0.55, 0.18), 1.5, true).duplicate()
+		_leaf_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	if shade == 1.0:
+		return _leaf_mat
+	var m := _leaf_mat.duplicate() as StandardMaterial3D
+	m.albedo_color = _leaf_mat.albedo_color * Color(shade, shade, shade)
+	return m
+
+
+## A big jungle tree against the wall: buttress roots, a tall trunk, a dark leaf
+## canopy high up and vines hanging down.
+static func _jungle_tree(parent: Node3D, rng: RandomNumberGenerator) -> void:
+	var bark := Build.pbr("bark_brown_02", Color(0.75, 0.68, 0.55), 1.0, true)
+	var h := rng.randf_range(5.5, 7.5)
+	var r := rng.randf_range(0.35, 0.55)
+	var base := Vector3(0, 0, 0.25)
+	Build.part(parent, Build.cylinder(r, h, r * 0.6), bark, base + Vector3(0, h * 0.5, 0))
+	for k in 5:
+		var a := k * TAU / 5.0 + rng.randf() * 0.5
+		var out := Vector3(cos(a), 0, sin(a))
+		Build.part(parent, Build.box(Vector3(0.14, 1.1, r * 2.0)), bark, base + out * r * 1.1 + Vector3(0, 0.4, 0),
+			Vector3(-25, rad_to_deg(atan2(out.x, out.z)), 0))
+	var leaf := _leaf(rng.randf_range(0.7, 1.0))
+	for k in rng.randi_range(5, 7):
+		var a := rng.randf() * TAU
+		var d := rng.randf_range(0.3, 1.6)
+		var s := rng.randf_range(1.0, 1.6)
+		Build.part(parent, Build.sphere(0.8), leaf, base + Vector3(cos(a) * d, h + rng.randf_range(-0.6, 0.4), sin(a) * d - 0.4),
+			Vector3(0, rng.randf() * 360, rng.randf_range(-10, 10)), Vector3(1.6, 0.55, 1.6) * s)
+	for k in rng.randi_range(2, 4):
+		_vine(parent, base + Vector3(rng.randf_range(-1.2, 1.2), h - 0.4, rng.randf_range(-1.4, -0.4)), rng.randf_range(1.5, 3.5), rng)
+
+
+## Hanging vine from top, with a few small leaves.
+static func _vine(parent: Node3D, top: Vector3, length: float, rng: RandomNumberGenerator) -> void:
+	var stem := Build.mat(Color(0.12, 0.2, 0.06), 0.9)
+	var v := Build.pivot(parent, top)
+	v.rotation_degrees.z = rng.randf_range(-6, 6)
+	Build.part(v, Build.cylinder(0.025, length, 0.015), stem, Vector3(0, -length * 0.5, 0))
+	var leaf := _leaf()
+	for i in int(length / 0.45):
+		var y := -0.3 - i * 0.45
+		Build.part(v, Build.sphere(0.09), leaf, Vector3(0.06 * (1 if i % 2 == 0 else -1), y, -0.03),
+			Vector3(0, rng.randf() * 360, 70), Vector3(1.0, 0.15, 0.6))
+
+
+static func _fern(parent: Node3D, rng: RandomNumberGenerator, size: float) -> void:
+	var leaf := _leaf(rng.randf_range(0.8, 1.15))
+	for i in rng.randi_range(7, 10):
+		var frond := Build.pivot(parent, Vector3(0, 0.05, -0.2))
+		frond.rotation_degrees = Vector3(0, i * 40.0 + rng.randf_range(-15, 15), 0)
+		Build.part(frond, Build.sphere(0.13), leaf, Vector3(0, 0.25, -0.4) * size, Vector3(-35, 0, 0), Vector3(0.7, 0.12, 3.6) * size)
+
+
+## Giant "elephant ear" leaves on bendy stems.
+static func _big_leaves(parent: Node3D, rng: RandomNumberGenerator) -> void:
+	var stem := Build.mat(Color(0.2, 0.3, 0.08), 0.8)
+	var leaf := _leaf(rng.randf_range(0.85, 1.2))
+	for i in rng.randi_range(3, 5):
+		var p := Build.pivot(parent, Vector3(rng.randf_range(-0.4, 0.4), 0, rng.randf_range(-0.3, 0.1)))
+		p.rotation_degrees = Vector3(rng.randf_range(-35, -10), rng.randf_range(-60, 60), 0)
+		var h := rng.randf_range(0.8, 1.6)
+		Build.part(p, Build.cylinder(0.035, h, 0.025), stem, Vector3(0, h * 0.5, 0))
+		var s := rng.randf_range(0.8, 1.3)
+		Build.part(p, Build.sphere(0.5), leaf, Vector3(0, h + 0.05, -0.35 * s), Vector3(-25, 0, 0), Vector3(0.75, 0.06, 1.2) * s)
+
+
+## A broken stone column from an old jungle temple, with moss on top.
+static func _ruin_pillar(parent: Node3D, rng: RandomNumberGenerator, theme: LevelTheme) -> void:
+	var stone := Build.pbr(theme.stone_texture if theme else "mossy_stone_wall", Color(0.75, 0.78, 0.7), 1.0, true)
+	var p := Build.pivot(parent, Vector3(0, 0, 0.1))
+	p.rotation_degrees = Vector3(rng.randf_range(-5, 5), rng.randf() * 360, rng.randf_range(-5, 5))
+	var h := rng.randf_range(1.2, 3.2)
+	var body := Build.cylinder(0.38, h, 0.34)
+	body.radial_segments = 8
+	Build.part(p, Build.box(Vector3(1.0, 0.25, 1.0)), stone, Vector3(0, 0.12, 0))
+	Build.part(p, body, stone, Vector3(0, h * 0.5 + 0.2, 0))
+	Build.part(p, Build.sphere(0.4), _leaf(0.8), Vector3(0, h + 0.2, 0), Vector3.ZERO, Vector3(1.0, 0.35, 1.0))
+	# A broken piece lying next to it
+	if rng.randf() < 0.6:
+		Build.part(parent, body, stone, Vector3(rng.randf_range(0.6, 1.0), 0.33, -0.6), Vector3(90, rng.randf() * 360, 0), Vector3(0.9, 0.4, 0.9))
+
+
+static func _glow_flowers(parent: Node3D, rng: RandomNumberGenerator) -> void:
+	var stem := Build.mat(Color(0.15, 0.3, 0.08), 0.8)
+	var petal := Build.glow(Color.from_hsv(rng.randf_range(0.75, 0.98), 0.65, 1.0), 1.8)
+	_fern(parent, rng, 0.5)
+	for i in rng.randi_range(4, 7):
+		var p := Vector3(rng.randf_range(-0.35, 0.35), 0, rng.randf_range(-0.3, 0.1))
+		var h := rng.randf_range(0.25, 0.6)
+		Build.part(parent, Build.cylinder(0.012, h), stem, p + Vector3(0, h * 0.5, 0))
+		for k in 5:
+			var a := k * TAU / 5.0
+			Build.part(parent, Build.sphere(0.04), petal, p + Vector3(cos(a) * 0.045, h, sin(a) * 0.045), Vector3.ZERO, Vector3(1.0, 0.4, 1.0))
+
+
+## A tribal warning post: a pole with skulls and glowing paint. Turn back!
+static func _skull_totem(parent: Node3D, rng: RandomNumberGenerator) -> void:
+	var wood := Build.pbr("bark_brown_02", Color(0.55, 0.45, 0.35), 2.0, true)
+	var paint := Build.glow(Color(0.9, 0.25, 0.1), 1.5)
+	var h := rng.randf_range(1.8, 2.4)
+	Build.part(parent, Build.cylinder(0.09, h, 0.07), wood, Vector3(0, h * 0.5, 0))
+	Build.part(parent, Build.box(Vector3(0.9, 0.08, 0.08)), wood, Vector3(0, h - 0.4, 0), Vector3(0, 0, rng.randf_range(-8, 8)))
+	for i in 3:
+		Build.part(parent, Build.box(Vector3(0.2, 0.03, 0.01)), paint, Vector3(0, 0.6 + i * 0.25, -0.09))
+	_skull(parent, Vector3(0, h - 0.05, -0.02), rng)
+	for side in [-1.0, 1.0]:
+		_skull(parent, Vector3(side * 0.38, h - 0.62, -0.02), rng)
+		chain(parent, Vector3(side * 0.38, h - 0.4, 0), 0.25)
+	_bones(parent, Vector3(0, 0, -0.3), rng, 2)

@@ -1,6 +1,7 @@
 extends Node
 ## Takes screenshots of Level 1 in a real window (not headless). Run with:
 ##   Godot --always-on-top --path . res://tests/screenshots.tscn -- <output folder>
+## Add `level=2` after the folder for the jungle level shots (j01_start ...).
 ## (--always-on-top: macOS stops drawing hidden windows, which makes the script hang.)
 
 var game: Game
@@ -14,9 +15,15 @@ func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	GameState.save_enabled = false
 	GameState.reset_progress()
+	if "level=2" in args:
+		GameState.level = 2
 	game = (load("res://scenes/game.tscn") as PackedScene).instantiate()
 	add_child(game)
 	await _wait(2.0)
+	if GameState.level == 2:
+		await _jungle_shots()
+		get_tree().quit()
+		return
 	await _shot("01_start")
 	var fire := game.wizards[0]
 	var ice := game.wizards[1]
@@ -184,6 +191,90 @@ func _ready() -> void:
 	await _wait(0.15)
 	await _shot("21_shield_patterns")
 	get_tree().quit()
+
+
+## Level 2: the jungle, its water monsters and the Jungle Demon.
+func _jungle_shots() -> void:
+	var fire := game.wizards[0]
+	var ice := game.wizards[1]
+	await _shot("j01_start")
+	_place(fire, Vector3(-1.5, 0.3, -16), 0.0)
+	_place(ice, Vector3(1.5, 0.3, -16), 0.0)
+	await _wait(2.0)
+	await _shot("j02_trail_jaguars")
+	game.get_tree().call_group("enemies", "queue_free")
+	_place(fire, Vector3(0, 0.3, -46.5), 0.0)
+	_place(ice, Vector3(-2, 0.3, -45), -0.4)
+	var fish := _monster_at("piranha", Vector3(-3, -0.6, -51))
+	fish.aggro_range = 0.0
+	await _wait(1.0)
+	await _shot("j03_river")
+	_place(fire, Vector3(0, 0.3, -93.5), 0.0)
+	_place(ice, Vector3(-6, 0.3, -112), 0.6)
+	await _wait(1.5)
+	await _shot("j04_swamp")
+	_place(fire, Vector3(0, 0.3, -180), 0.0)
+	_place(ice, Vector3(4, 0.3, -204.5), -0.7)
+	await _wait(1.5)
+	await _shot("j05_lagoon")
+	_place(fire, Vector3(-2, 0.3, -229), -1.2)
+	_place(ice, Vector3(0, 0.3, -238), 0.0)
+	await _wait(1.5)
+	await _shot("j06_shrine_and_thorns")
+	# Every jungle monster side by side, facing the cameras
+	game.get_tree().call_group("enemies", "queue_free")
+	(game.level.get_node("BigArena") as Arena).state = "cleared"
+	var x := -5.5
+	for path in ["jaguar", "anaconda", "crocodile", "piranha", "jungle_demon"]:
+		var m := _monster_at(path, Vector3(x, 0, -306))
+		m.aggro_range = 0.0
+		m.rotation.y = PI
+		if m.swim_leash > 0.0:
+			m.set_physics_process(false)
+			m._model.position.y = 0.0
+		x += 2.8
+	_place(fire, Vector3(-2.5, 0.3, -297.5), 0.0)
+	_place(ice, Vector3(2.5, 0.3, -297.5), 0.0)
+	await _wait(1.5)
+	await _shot("j07_monster_lineup")
+	# The demon's roots attack
+	game.get_tree().call_group("enemies", "queue_free")
+	var big := game.level.get_node("BigArena") as Arena
+	big.state = "active"
+	(game.level.get_node("ThornDoor") as Node3D).queue_free()
+	var demon: Enemy = (load("res://scenes/enemies/jungle_demon.tscn") as PackedScene).instantiate()
+	big.add_child(demon)
+	demon.global_position = Vector3(0, 0, -275)
+	demon._roots_timer = 0.0
+	demon.aggro_range = 60.0
+	_place(fire, Vector3(-3, 0.3, -258), 0.0)
+	_place(ice, Vector3(3, 0.3, -258), 0.0)
+	fire._invulnerable = 999.0
+	ice._invulnerable = 999.0
+	for i in 60:
+		await _wait(0.05)
+		if demon._root_marks.size() > 0:
+			break
+	await _wait(0.6)
+	await _shot("j08_demon_roots")
+	await _wait(0.75)
+	await _shot("j09_roots_burst")
+	_place(fire, Vector3(-1.5, 0.3, -305), 0.0)
+	_place(ice, Vector3(1.5, 0.3, -305), 0.0)
+	await _wait(1.5)
+	await _shot("j10_portal")
+
+
+func _place(w: Wizard, pos: Vector3, yaw: float) -> void:
+	w.teleport(pos, true)
+	w.camera_rig.set_yaw(yaw)
+
+
+func _monster_at(path: String, pos: Vector3) -> Enemy:
+	var m: Enemy = (load("res://scenes/enemies/%s.tscn" % path) as PackedScene).instantiate()
+	game.level.add_child(m)
+	m.global_position = pos
+	return m
 
 
 func _wait(seconds: float) -> void:

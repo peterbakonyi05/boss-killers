@@ -6,8 +6,9 @@ Plain scenes that run checks and quit; no test framework. Each prints `PASS  ...
 | Scene | Mode | Covers |
 |---|---|---|
 | `smoke_test.tscn` | headless, ~50 s | economy budget, nav connectivity, theme dressing, spells + spell twists (pierce, homing, meteor, fire pool, frost patch, shield touch), shields, burn/freeze, lava, ice door, secrets, arenas (waves, gates, money take-back), team wipe/revive, items/portal, monster moves (roar, lunge, charge, boss summon), level completion |
+| `level_02_test.tscn` | headless, ~40 s | sets `GameState.level = 2`: jungle economy budget, nav, theme props, jaguar pounce/prowl, anaconda strike/slam, crocodile bite + leash, piranha leap + no auto-aim under water, water falls, water trench, thorn doors, secrets, jaguar den waves, Jungle Demon roots + enrage summons |
 | `menu_test.tscn` | headless, seconds | title join + start, shop navigation and buying with simulated controller presses, focus recovery |
-| `screenshots.tscn` | window | gameplay PNGs (`01_start` … `21_shield_patterns`) into the folder given after `--` |
+| `screenshots.tscn` | window | gameplay PNGs (`01_start` … `21_shield_patterns`) into the folder given after `--`; add `level=2` for jungle shots (`j01_start` … `j10_portal`) |
 | `menu_screenshots.tscn` | window | title, level complete, shop PNGs |
 
 Running safely:

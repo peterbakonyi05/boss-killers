@@ -1,6 +1,6 @@
 class_name SpellVisuals
 ## How each spell looks while flying and when it hits. A projectile's `style`
-## (from SpellData.strong_style / weak_style, or "acid"/"hellfire" for monsters)
+## (from SpellData.strong_style / weak_style, or "acid"/"hellfire"/"thorn" for monsters)
 ## picks the builder. Flames and ice use small shaders, so nothing needs texture files.
 
 static var _flame_shader: Shader
@@ -184,6 +184,16 @@ static func build(p: Projectile) -> void:
 			Build.part(core, Build.sphere(r * 1.4), flame_material(c.lightened(0.4), c.darkened(0.3), 1.5))
 			_trail(p, c * 1.5, 14, 0.6, r * 0.8, {"speed_min": 0.0, "speed_max": 0.4, "radius": r * 0.5, "gravity": Vector3(0, -6.0, 0)})
 			p.visual_spin = 5.0
+		"thorn":
+			# A spinning green thorn with dark barbs and a trail of falling leaves.
+			_forward(core, Build.cone(r * 0.55, r * 4.0), Build.glow(c, 2.5), Vector3(0, 0, -r * 0.8))
+			_forward(core, Build.cylinder(r * 0.35, r * 1.6, r * 0.5), Build.mat(Color(0.25, 0.18, 0.1), 0.8), Vector3(0, 0, r * 1.6))
+			for k in 4:
+				var barb := Build.pivot(core, Vector3(0, 0, -r * 0.2 + k * r * 0.5))
+				barb.rotation.z = k * TAU / 4.0
+				Build.part(barb, Build.cone(r * 0.14, r * 0.7), Build.mat(Color(0.12, 0.08, 0.05), 0.8), Vector3(0, r * 0.45, 0), Vector3(-40, 0, 0))
+			_trail(p, Color(0.35, 0.7, 0.15, 0.9), 12, 0.6, r * 0.7, {"speed_min": 0.1, "speed_max": 0.6, "radius": r * 0.4, "gravity": Vector3(0, -4.0, 0)})
+			p.visual_spin = 9.0
 		"hellfire":
 			Build.part(core, Build.sphere(r * 0.6), Build.glow(Color(1.0, 0.5, 0.2), 5.0))
 			Build.part(core, Build.sphere(r * 1.3), flame_material(Color(1.0, 0.35, 0.1), Color(0.5, 0.0, 0.05), 3.0))
@@ -211,7 +221,7 @@ static func impact(p: Projectile, pos: Vector3, big: bool) -> void:
 		if big:
 			_ring(p, pos, c, 2.4, 0.35)
 			FX.burst(p, pos, Color(0.75, 0.9, 1.0, 0.45), 14, 2.0, 1.4, 1.0, {"smoke": true})
-	elif p.style == "acid":
+	elif p.style == "acid" or p.style == "thorn":
 		FX.burst(p, pos, c * 1.5, 16, 3.0, r * 0.8, 0.6, {"gravity": Vector3(0, -8, 0)})
 		FX.burst(p, pos, Color(0.3, 0.5, 0.1, 0.5), 6, 1.0, 0.8, 0.8, {"smoke": true})
 	else:

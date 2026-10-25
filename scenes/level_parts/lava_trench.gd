@@ -1,7 +1,8 @@
 class_name LavaTrench
 extends Node3D
-## A gap full of lava. The ice wizard shoots ice over it to freeze a bridge for a while.
-## Leave a gap in the floor where this sits. The origin is the middle of the gap at floor height.
+## A gap full of lava (or piranha water). The ice wizard shoots ice over it to freeze
+## a bridge for a while. Leave a gap in the floor where this sits. The origin is the
+## middle of the gap at floor height.
 
 ## Length of the gap (along the path, local Z).
 @export var length := 8.0
@@ -10,6 +11,8 @@ extends Node3D
 @export var depth := 1.8
 ## Seconds the ice bridge lasts.
 @export var bridge_time := 15.0
+## Jungle river instead of lava: dark water, falling in means piranha bites.
+@export var water := false
 
 var frozen := false
 var _bridge: StaticBody3D
@@ -27,11 +30,12 @@ func _ready() -> void:
 	_build_lava()
 	_build_bridge()
 	_build_freeze_zone()
-	_sign = Build.label3d(self, "ICE WIZARD:\nShoot ice at the lava\nto make a bridge!", Vector3(0, 3.6, length * 0.5 + 1.0), 56, Color(0.7, 0.92, 1.0))
+	var text := "ICE WIZARD:\nShoot ice at the water\nto make a bridge!" if water else "ICE WIZARD:\nShoot ice at the lava\nto make a bridge!"
+	_sign = Build.label3d(self, text, Vector3(0, 3.6, length * 0.5 + 1.0), 56, Color(0.7, 0.92, 1.0))
 
 
 func _build_pit() -> void:
-	var rock := Build.mat(Color(0.2, 0.12, 0.1), 0.95)
+	var rock := Build.mat(Color(0.1, 0.12, 0.08) if water else Color(0.2, 0.12, 0.1), 0.95)
 	var body := StaticBody3D.new()
 	add_child(body)
 	# Front and back walls of the pit, and the side walls.
@@ -50,15 +54,22 @@ func _build_pit() -> void:
 
 
 func _build_lava() -> void:
-	_lava_mat = Build.lava_material()
+	_lava_mat = Build.water_material() if water else Build.lava_material()
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(width, length)
 	var lava := Build.part(self, plane, _lava_mat, Vector3(0, -depth + 0.3, 0))
 	lava.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_lava_light = Build.light(self, Color(1.0, 0.4, 0.1), 5.0, 14.0, Vector3(0, 0.8, 0))
-	var embers := FX.particles(Color(1.0, 0.5, 0.1) * 2.0, 60, 2.5, 0.18,
-		{"direction": Vector3.UP, "spread": 20.0, "speed_min": 1.5, "speed_max": 3.0,
-		"box": Vector3(width * 0.5, 0.1, length * 0.5)})
+	var glow_color := Color(0.3, 0.8, 0.6) if water else Color(1.0, 0.4, 0.1)
+	_lava_light = Build.light(self, glow_color, _glow_energy(), 14.0, Vector3(0, 0.8, 0))
+	var embers: GPUParticles3D
+	if water:
+		embers = FX.particles(Color(0.7, 0.95, 0.85, 0.7), 30, 1.2, 0.07,
+			{"direction": Vector3.UP, "spread": 10.0, "speed_min": 0.2, "speed_max": 0.5,
+			"box": Vector3(width * 0.5, 0.05, length * 0.5)})
+	else:
+		embers = FX.particles(Color(1.0, 0.5, 0.1) * 2.0, 60, 2.5, 0.18,
+			{"direction": Vector3.UP, "spread": 20.0, "speed_min": 1.5, "speed_max": 3.0,
+			"box": Vector3(width * 0.5, 0.1, length * 0.5)})
 	embers.position = Vector3(0, -depth + 0.4, 0)
 	add_child(embers)
 	embers.emitting = true
@@ -114,7 +125,7 @@ func freeze(hit_pos := Vector3.INF) -> void:
 	_bridge.collision_layer = 1
 	_bridge.visible = true
 	_bridge_mat.albedo_color.a = 0.85
-	_lava_light.light_energy = 1.5
+	_lava_light.light_energy = _glow_energy() * 0.3
 	if hit_pos != Vector3.INF:
 		FX.burst(self, hit_pos, Color(0.7, 0.95, 1.0) * 2.0, 30, 5.0, 0.3, 0.6)
 	if not was_frozen:
@@ -132,14 +143,19 @@ func _melt() -> void:
 	frozen = false
 	_bridge.collision_layer = 0
 	_bridge.visible = false
-	_lava_light.light_energy = 5.0
+	_lava_light.light_energy = _glow_energy()
 	_sign.visible = true
 	FX.burst(self, global_position, Color(0.85, 0.85, 0.9, 0.7), 40, 3.0, 1.2, 1.2,
 		{"smoke": true, "box": Vector3(width * 0.5, 0.2, length * 0.5), "gravity": Vector3(0, 2, 0)})
 
 
+## Lava glows bright; water only shimmers a little.
+func _glow_energy() -> float:
+	return 1.2 if water else 5.0
+
+
 func _process(delta: float) -> void:
-	_lava_mat.uv1_offset += Vector3(0.03, 0.05, 0) * delta
+	_lava_mat.uv1_offset += Vector3(0.03, 0.05, 0) * delta * (0.3 if water else 1.0)
 	if not frozen:
 		return
 	_time_left -= delta
@@ -153,6 +169,12 @@ func _process(delta: float) -> void:
 
 
 func _on_lava_entered(body: Node3D) -> void:
+	if water:
+		if body.has_method("fall_in_water"):
+			FX.burst(self, body.global_position, Color(0.75, 0.95, 0.9, 0.8), 30, 4.0, 0.15, 0.6,
+				{"direction": Vector3.UP, "spread": 45.0, "gravity": Vector3(0, -9, 0)})
+			body.call_deferred("fall_in_water")
+		return
 	if body.has_method("fall_in_lava"):
 		FX.burst(self, body.global_position, Color(1.0, 0.5, 0.1) * 2.0, 30, 5.0, 0.3, 0.6)
 		body.call_deferred("fall_in_lava")

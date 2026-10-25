@@ -14,6 +14,9 @@ const IMP := preload("res://scenes/enemies/imp.tscn")
 const SPITTER := preload("res://scenes/enemies/spitter.tscn")
 const BRUTE := preload("res://scenes/enemies/brute.tscn")
 const KNIGHT := preload("res://scenes/enemies/demon_knight.tscn")
+const JAGUAR := preload("res://scenes/enemies/jaguar.tscn")
+const ANACONDA := preload("res://scenes/enemies/anaconda.tscn")
+const DEMON := preload("res://scenes/enemies/jungle_demon.tscn")
 
 @export var arena_name := "Arena"
 ## Size of the room floor (x = width, z = depth).
@@ -22,6 +25,10 @@ const KNIGHT := preload("res://scenes/enemies/demon_knight.tscn")
 @export var wave_spitters := PackedInt32Array([0, 2])
 @export var wave_brutes := PackedInt32Array([0, 0])
 @export var wave_knights := PackedInt32Array([0, 0])
+@export var wave_jaguars := PackedInt32Array()
+@export var wave_anacondas := PackedInt32Array()
+## Jungle Demon boss.
+@export var wave_demons := PackedInt32Array()
 ## Something that appears in the middle when the arena is cleared (e.g. the key).
 @export var reward_scene: PackedScene
 
@@ -45,7 +52,10 @@ func _ready() -> void:
 
 
 func wave_count() -> int:
-	return maxi(maxi(wave_imps.size(), wave_spitters.size()), maxi(wave_brutes.size(), wave_knights.size()))
+	var count := 0
+	for list in [wave_imps, wave_spitters, wave_brutes, wave_knights, wave_jaguars, wave_anacondas, wave_demons]:
+		count = maxi(count, (list as PackedInt32Array).size())
+	return count
 
 
 func _on_body_entered(body: Node3D) -> void:
@@ -122,6 +132,12 @@ func _spawn_wave() -> void:
 	var todo: Array = []
 	for k in _wave_value(wave_knights):
 		todo.append(KNIGHT)
+	for k in _wave_value(wave_demons):
+		todo.append(DEMON)
+	for k in _wave_value(wave_anacondas):
+		todo.append(ANACONDA)
+	for k in _wave_value(wave_jaguars):
+		todo.append(JAGUAR)
 	for k in _wave_value(wave_brutes):
 		todo.append(BRUTE)
 	for k in _wave_value(wave_imps):
@@ -139,11 +155,17 @@ func _spawn_wave() -> void:
 		_on_wave_done()
 
 
-## Extra monsters called in during the fight (an enraged boss calls imps).
+## Extra monsters called in during the fight (an enraged boss calls imps or jaguars).
 func summon(kind: String, pos: Vector3) -> void:
 	if state != "active":
 		return
-	_spawn_enemy(SPITTER if kind == "spitter" else IMP, pos, 0.0)
+	var scene := IMP
+	match kind:
+		"spitter":
+			scene = SPITTER
+		"jaguar":
+			scene = JAGUAR
+	_spawn_enemy(scene, pos, 0.0)
 
 
 func _spawn_enemy(kind: PackedScene, pos: Vector3, delay: float) -> void:

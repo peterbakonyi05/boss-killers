@@ -468,4 +468,4 @@ func _run() -> void:
 	await get_tree().create_timer(1.5).timeout
 	_check(GameState.level == 2, "level counter goes up")
 	_check(GameState.spell_data("fire").tier == 2 and GameState.spell_data("ice").tier == 2, "tier 2 magic unlocked")
-	_check(GameState.level_data().level_number == 1, "unbuilt level 2 falls back to level 1 layout")
+	_check(GameState.level_data().level_number == 2, "level 2 loads the jungle layout")

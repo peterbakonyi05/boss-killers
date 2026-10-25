@@ -6,7 +6,8 @@ extends Node3D
 @export_enum("rock_small", "rock_mossy", "boulder", "dead_log", "barrel", "barrel_pile", "crate",
 	"bucket", "statue", "fallen_knight", "lantern", "cage", "chandelier", "skull",
 	"skull_pile", "bones", "candles", "cobweb", "chains", "gravestone", "coffin",
-	"mushrooms", "crystals") var kind := "skull_pile"
+	"mushrooms", "crystals", "jungle_tree", "fern", "big_leaves", "vines", "ruin_pillar",
+	"glow_flowers", "skull_totem") var kind := "skull_pile"
 ## Change to get a different random variant of the same kind.
 @export var variant := 0
 

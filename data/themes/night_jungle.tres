@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="LevelTheme" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/level_theme.gd" id="1_theme"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_night"]
+sky_top_color = Color(0.01, 0.025, 0.035, 1)
+sky_horizon_color = Color(0.05, 0.12, 0.1, 1)
+sky_energy_multiplier = 0.6
+ground_bottom_color = Color(0.01, 0.02, 0.015, 1)
+ground_horizon_color = Color(0.05, 0.12, 0.1, 1)
+sun_angle_max = 0.0
+
+[resource]
+script = ExtResource("1_theme")
+theme_name = "Night Jungle"
+background_color = Color(0.01, 0.03, 0.025, 1)
+sky_material = SubResource("ProceduralSkyMaterial_night")
+ambient_color = Color(0.3, 0.42, 0.36, 1)
+ambient_energy = 0.55
+fog_color = Color(0.05, 0.12, 0.09, 1)
+fog_density = 0.016
+fog_height_density = 0.12
+fog_height = 0.6
+volumetric_fog_density = 0.03
+volumetric_fog_albedo = Color(0.6, 0.85, 0.7, 1)
+volumetric_fog_emission = Color(0.006, 0.02, 0.012, 1)
+glow_intensity = 0.9
+exposure = 1.2
+saturation = 1.1
+wall_texture = "mossy_rock"
+wall_tint = Color(0.8, 0.85, 0.75, 1)
+wall_uv_scale = 0.22
+floor_texture = "forest_leaves_02"
+floor_tint = Color(0.85, 0.85, 0.75, 1)
+floor_uv_scale = 0.3
+arena_floor_texture = "mossy_cobblestone"
+arena_floor_tint = Color(0.8, 0.85, 0.78, 1)
+arena_floor_uv_scale = 0.2
+stone_texture = "mossy_stone_wall"
+stone_tint = Color(0.75, 0.82, 0.72, 1)
+glow_color = Color(0.45, 1, 0.3, 1)
+normal_strength = 1.4
+torch_color = Color(1, 0.62, 0.25, 1)
+torch_flicker = 0.5
+wall_props = PackedStringArray("jungle_tree", "jungle_tree", "fern", "fern", "big_leaves", "big_leaves", "boulder", "rock_mossy", "dead_log", "ruin_pillar", "glow_flowers", "mushrooms", "skull_totem", "jungle_tree", "fern", "big_leaves", "skull_pile")
+high_props = PackedStringArray("vines", "vines", "vines", "cobweb")
+floor_props = PackedStringArray("fern", "rock_small", "glow_flowers", "fern", "mushrooms", "skull")
+wall_prop_density = 0.55
+high_prop_density = 0.3
+floor_prop_density = 0.03
+prop_seed = 2
+ambient_particles = "fireflies"
+ghost_wisps = 6
+wisp_color = Color(0.7, 1, 0.4, 1)
+bats = true
+lurking_eyes = 14
+eye_color = Color(1, 0.85, 0.15, 1)
