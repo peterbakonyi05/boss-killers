@@ -95,6 +95,22 @@ func _ready() -> void:
 	fire.take_damage(9999.0)
 	await _wait(1.0)
 	await _shot("12_downed")
+	fire.revive(true)
+
+	# Close-up of the monsters and wizards side by side
+	fire.teleport(Vector3(-1.2, 0.3, -5))
+	ice.teleport(Vector3(1.2, 0.3, -5))
+	fire.camera_rig.set_yaw(0.0)
+	ice.camera_rig.set_yaw(0.0)
+	var x := -2.6
+	for path in ["imp", "spitter", "brute"]:
+		var m: Enemy = (load("res://scenes/enemies/%s.tscn" % path) as PackedScene).instantiate()
+		m.aggro_range = 0.0
+		game.level.add_child(m)
+		m.global_position = Vector3(x, 0, -8.5)
+		x += 2.6
+	await _wait(1.0)
+	await _shot("13_lineup")
 	get_tree().quit()
 
 
