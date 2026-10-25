@@ -44,6 +44,7 @@ var _aim_dir := Vector3.FORWARD
 var _safe_timer := 0.0
 var _hurt_flash := 0.0
 var _interactable = null
+var _lava_guard := 0.0   # touching two lava areas at once only hurts once
 
 var _model: Node3D
 var _body_pivot: Node3D
@@ -198,6 +199,7 @@ func _tick_timers(delta: float) -> void:
 		_cooldowns[slot] = maxf(0.0, _cooldowns[slot] - delta)
 	_invulnerable = maxf(0.0, _invulnerable - delta)
 	_aim_hold = maxf(0.0, _aim_hold - delta)
+	_lava_guard = maxf(0.0, _lava_guard - delta)
 	if _hurt_flash > 0.0:
 		_hurt_flash = maxf(0.0, _hurt_flash - delta * 3.0)
 		_hurt_mat.albedo_color.a = _hurt_flash * 0.6
@@ -468,6 +470,9 @@ func revive(full := false) -> void:
 
 ## Fell into lava: lose some health and pop back to where we last stood safely.
 func fall_in_lava() -> void:
+	if _lava_guard > 0.0:
+		return
+	_lava_guard = 0.5
 	var was_down := is_down
 	_invulnerable = 0.0
 	take_damage(GameState.balance.lava_damage, Vector3.INF, true)

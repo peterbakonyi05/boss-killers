@@ -87,6 +87,18 @@ func _run() -> void:
 	var nav := game.level.get_node("Nav") as NavigationRegion3D
 	await _frames(30)
 	_check(nav.navigation_mesh.get_polygon_count() > 0, "navigation mesh baked (%d polygons)" % nav.navigation_mesh.get_polygon_count())
+	# Walkable stretches between the lava gaps (the gaps themselves need an ice bridge).
+	var stretches := [
+		[Vector3(0, 0, -5), Vector3(0, 0, -70), "start to first lava trench"],
+		[Vector3(0, 0, -5), Vector3(-10, 0, -30), "corridor to the secret room"],
+		[Vector3(0, 0, -86), Vector3(0, 0, -164), "first trench to the cavern trench"],
+		[Vector3(0, 0, -172), Vector3(0, 0, -247), "cavern exit to the portal"],
+		[Vector3(0, 0, -180), Vector3(11, 0, -180), "riddle room to the secret shrine"],
+	]
+	for st in stretches:
+		var path := NavigationServer3D.map_get_path(nav.get_navigation_map(), st[0], st[1], true)
+		var reached := path.size() > 0 and path[path.size() - 1].distance_to(st[1]) < 1.5
+		_check(reached, "walkable: %s" % st[2])
 
 	# Casting every spell and shield
 	fire.teleport(Vector3(2, 0.3, -12))
@@ -158,7 +170,7 @@ func _run() -> void:
 		if e is Enemy and not e.dead:
 			e.die()
 	await _frames(30)
-	fire.teleport(Vector3(-1, 0.3, -130.5))
+	fire.teleport(Vector3(-1, 0.3, -190.5))
 	await _frames(5)
 	for i in 6:
 		fire._cooldowns["spell_strong"] = 0.0
@@ -166,6 +178,36 @@ func _run() -> void:
 		await _frames(25)
 	await _frames(40)
 	_check(not is_instance_valid(door) or door.collision_layer == 0, "fire melts the ice door")
+
+	# Secrets: a cracked wall breaks with magic, chests give money
+	_check(game.secrets_total == 3, "level has 3 secrets (%d)" % game.secrets_total)
+	_check((game.level.get_node("ExitPortal") as Node3D).global_position.z < -240.0, "level is longer (portal past 240 m)")
+	var cracked := game.level.get_node("CrackedWall") as BreakableWall
+	fire.teleport(Vector3(-1, 0.3, -30))
+	fire.camera_rig.set_yaw(PI / 2.0)
+	await _frames(5)
+	for i in 6:
+		fire._cooldowns["spell_strong"] = 0.0
+		fire.cast(true)
+		await _frames(20)
+	await _frames(40)
+	_check(not is_instance_valid(cracked) or cracked.collision_layer == 0, "spells break the cracked wall")
+	var chest := game.level.get_node("ChestCrackedWall") as TreasureChest
+	money = GameState.money
+	chest.interact(fire)
+	_check(GameState.money - money == chest.money and game.secrets_found == 1, "secret chest gives %d money" % chest.money)
+	_check(not chest.can_interact(fire), "chest opens only once")
+	var secret_ice := game.level.get_node("SecretIceWall") as IceDoor
+	_check(not secret_ice._sign.visible, "secret ice wall has no sign")
+
+	# The cavern lava lake hurts and sends wizards back to safe ground
+	ice.teleport(Vector3(0, 0.3, -140), true)
+	await _frames(10)
+	var ice_hp := ice.health
+	ice.teleport(Vector3(-8, 0.5, -152))
+	await _frames(30)
+	_check(ice.health < ice_hp and ice.global_position.distance_to(Vector3(0, 0.3, -140)) < 3.0, "lava lake burns and returns the wizard")
+	_check(ice.health > ice_hp - GameState.balance.lava_damage * 1.5, "lava only hurts once per fall")
 
 	# Arena: walking in closes the gates and spawns monsters
 	var arena := game.level.get_node("Arena1") as Arena

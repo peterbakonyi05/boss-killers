@@ -62,8 +62,8 @@ func _ready() -> void:
 	await _wait(0.5)
 
 	# Ice door and riddle
-	fire.teleport(Vector3(1.5, 0.3, -127))
-	ice.teleport(Vector3(-1.5, 0.3, -127))
+	fire.teleport(Vector3(1.5, 0.3, -187))
+	ice.teleport(Vector3(-1.5, 0.3, -187))
 	ice.camera_rig.set_yaw(0.0)
 	await _wait(1.0)
 	await _shot("08_ice_door")
@@ -76,10 +76,10 @@ func _ready() -> void:
 	# Demon knight
 	var knight: Enemy = (load("res://scenes/enemies/demon_knight.tscn") as PackedScene).instantiate()
 	game.level.add_child(knight)
-	knight.global_position = Vector3(0, 0, -150)
+	knight.global_position = Vector3(0, 0, -210)
 	(game.level.get_node("IceDoor") as Node3D).queue_free()
-	fire.teleport(Vector3(2, 0.3, -140))
-	ice.teleport(Vector3(-2, 0.3, -140))
+	fire.teleport(Vector3(2, 0.3, -200))
+	ice.teleport(Vector3(-2, 0.3, -200))
 	await _wait(1.5)
 	await _shot("10_knight")
 
@@ -87,8 +87,8 @@ func _ready() -> void:
 	game.collect_item("key")
 	game.collect_item("rune")
 	knight.queue_free()
-	fire.teleport(Vector3(1.5, 0.3, -180))
-	ice.teleport(Vector3(-1.5, 0.3, -180))
+	fire.teleport(Vector3(1.5, 0.3, -240))
+	ice.teleport(Vector3(-1.5, 0.3, -240))
 	await _wait(1.5)
 	await _shot("11_portal")
 
@@ -111,6 +111,21 @@ func _ready() -> void:
 		x += 2.6
 	await _wait(1.0)
 	await _shot("13_lineup")
+
+	# New areas: ambush tunnel, lava cavern, secret ledge
+	game.get_tree().call_group("enemies", "queue_free")
+	fire.teleport(Vector3(-1.2, 0.3, -117))
+	ice.teleport(Vector3(1.2, 0.3, -139))
+	fire.camera_rig.set_yaw(0.0)
+	ice.camera_rig.set_yaw(0.0)
+	await _wait(1.5)
+	await _shot("14_tunnel_and_cavern")
+	fire.teleport(Vector3(-1, 0.3, -30))
+	fire.camera_rig.set_yaw(PI / 2.0)
+	ice.teleport(Vector3(-9, 0.3, -161))
+	ice.camera_rig.set_yaw(0.3)
+	await _wait(1.5)
+	await _shot("15_secrets")
 	get_tree().quit()
 
 

@@ -7,6 +7,8 @@ extends StaticBody3D
 @export var thickness := 1.2
 ## How much fire damage it takes to melt.
 @export var melt_health := 80.0
+## The "Fire Wizard: melt the door" sign. Secret ice walls have none.
+@export var show_sign := true
 
 var _hp := 80.0
 var _ice: Node3D
@@ -31,6 +33,7 @@ func _ready() -> void:
 		Build.part(_ice, Build.box(s), _mat, pos * Vector3(1, 1, -1), Vector3(0, 0, rng.randf_range(-30, 30)))
 	Build.light(self, Color(0.5, 0.85, 1.0), 1.5, 8.0, Vector3(0, height * 0.5, thickness + 1.0))
 	_sign = Build.label3d(self, "FIRE WIZARD:\nMelt the ice door!", Vector3(0, height - 0.6, thickness + 0.6), 44, Color(1.0, 0.7, 0.4))
+	_sign.visible = show_sign
 
 
 func _process(delta: float) -> void:
@@ -54,7 +57,7 @@ func take_hit(p: Projectile) -> bool:
 		if _hint_cooldown <= 0.0:
 			_hint_cooldown = 4.0
 			FX.float_text(self, p.global_position, "Ice can't melt ice!", Color(0.7, 0.92, 1.0), 56)
-			if Game.instance:
+			if Game.instance and show_sign:
 				Game.instance.toast("Fire Wizard, melt the ice door!", UIUtil.FIRE_COLOR)
 	return true
 

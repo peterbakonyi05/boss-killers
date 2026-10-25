@@ -28,6 +28,29 @@ static func see_through(color: Color, energy := 0.5) -> StandardMaterial3D:
 	return m
 
 
+## Glowing, swirly lava (move uv1_offset every frame to make it flow).
+static func lava_material() -> StandardMaterial3D:
+	var noise := FastNoiseLite.new()
+	noise.frequency = 0.04
+	var tex := NoiseTexture2D.new()
+	tex.noise = noise
+	tex.seamless = true
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(0.5, 0.05, 0.0))
+	ramp.set_color(1, Color(1.0, 0.75, 0.2))
+	tex.color_ramp = ramp
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = tex
+	m.emission_enabled = true
+	m.emission_texture = tex
+	# Tinted orange so bright spots stay lava-colored instead of turning white.
+	m.albedo_color = Color(1.0, 0.55, 0.3)
+	m.emission = Color(1.0, 0.45, 0.12)
+	m.emission_energy_multiplier = 1.6
+	m.uv1_scale = Vector3(2, 2, 2)
+	return m
+
+
 static func sphere(radius: float) -> SphereMesh:
 	var m := SphereMesh.new()
 	m.radius = radius

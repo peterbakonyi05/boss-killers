@@ -10,9 +10,9 @@ extends Resource
 
 @export_group("Money")
 ## Money for defeating a small (imp), medium (brute) or big (boss) monster.
-@export var money_small := 12
-@export var money_medium := 40
-@export var money_big := 120
+@export var money_small := 8
+@export var money_medium := 25
+@export var money_big := 100
 ## Extra money per kill for every level after level 1 (0.15 = +15% per level).
 @export var money_level_bonus := 0.15
 

@@ -50,22 +50,7 @@ func _build_pit() -> void:
 
 
 func _build_lava() -> void:
-	var noise := FastNoiseLite.new()
-	noise.frequency = 0.04
-	var tex := NoiseTexture2D.new()
-	tex.noise = noise
-	tex.seamless = true
-	var ramp := Gradient.new()
-	ramp.set_color(0, Color(0.5, 0.05, 0.0))
-	ramp.set_color(1, Color(1.0, 0.75, 0.2))
-	tex.color_ramp = ramp
-	_lava_mat = StandardMaterial3D.new()
-	_lava_mat.albedo_texture = tex
-	_lava_mat.emission_enabled = true
-	_lava_mat.emission_texture = tex
-	_lava_mat.emission = Color(1, 1, 1)
-	_lava_mat.emission_energy_multiplier = 1.6
-	_lava_mat.uv1_scale = Vector3(2, 2, 2)
+	_lava_mat = Build.lava_material()
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(width, length)
 	var lava := Build.part(self, plane, _lava_mat, Vector3(0, -depth + 0.3, 0))
