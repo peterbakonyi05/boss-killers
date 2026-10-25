@@ -40,7 +40,7 @@ func _ready() -> void:
 	box.add_child(columns)
 	for element in GameState.ELEMENTS:
 		columns.add_child(_wizard_column(element))
-	_message = UIUtil.label("Each upgrade makes that magic 15% stronger.", 24, Color(1, 0.85, 0.7))
+	_message = UIUtil.label(_tip(), 24, Color(1, 0.85, 0.7))
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_message)
 	var level_text := "Next level" if GameState.is_level_built(GameState.level) else "Play again (more levels coming soon!)"
@@ -52,6 +52,11 @@ func _ready() -> void:
 	GameState.save_game()
 	await get_tree().process_frame
 	_next_button.grab_focus()
+
+
+func _tip() -> String:
+	var bonus := int(round(GameState.balance.upgrade_bonus_per_rank * 100.0))
+	return "Each upgrade makes that magic %d%% stronger. Big magic costs more: save up for it!" % bonus
 
 
 func _background() -> Texture2D:
@@ -109,8 +114,15 @@ func _refresh() -> void:
 			var button: Button = _buttons[key]
 			if not GameState.can_upgrade(element, slot):
 				button.text = "MAX"
+				button.remove_theme_color_override("font_color")
+				continue
+			var price := GameState.upgrade_price(element, slot)
+			button.text = "Buy  %d" % price
+			if price > GameState.money:
+				# Still selectable, but greyed out so it's clear the team must save up.
+				button.add_theme_color_override("font_color", Color(0.55, 0.48, 0.45))
 			else:
-				button.text = "Buy  %d" % GameState.upgrade_price(element, slot)
+				button.remove_theme_color_override("font_color")
 
 
 func _on_buy(element: String, slot: String) -> void:
@@ -121,7 +133,7 @@ func _on_buy(element: String, slot: String) -> void:
 	if GameState.buy_upgrade(element, slot):
 		_message.text = "%s got stronger!" % GameState.spell_data(element).slot_name(slot)
 	else:
-		_message.text = "Not enough money! You need %d more." % (price - GameState.money)
+		_message.text = "Not enough money yet! Save %d more for it." % (price - GameState.money)
 	_refresh()
 
 

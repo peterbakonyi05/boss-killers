@@ -30,6 +30,8 @@ enum Look { IMP, BRUTE, KNIGHT }
 
 var health := 30.0
 var max_health := 30.0
+## Money this monster gave the team when it died.
+var money_dropped := 0
 var damage := 6.0
 var dead := false
 var aim_height := 0.8
@@ -678,6 +680,7 @@ func die() -> void:
 	var size_scale := 1.0 if look == Look.IMP else (1.6 if look == Look.BRUTE else 2.4)
 	FX.poof(self, center, eye_color, size_scale)
 	var amount := GameState.money_for(money_size)
+	money_dropped = amount
 	GameState.add_money(amount)
 	FX.float_text(self, center + Vector3(0, 0.8, 0), "+%d" % amount, UIUtil.GOLD, 72)
 	var collector := _closest_wizard()

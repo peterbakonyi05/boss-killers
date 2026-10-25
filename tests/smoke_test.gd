@@ -33,9 +33,38 @@ func _alive_monster(name: String) -> Enemy:
 	return game.level.get_node_or_null("PathMonsters/" + name) as Enemy
 
 
+## The most money a team can get in this level (every monster, every treasure).
+func _max_level_money() -> int:
+	var total := 0
+	for node in get_tree().get_nodes_in_group("enemies"):
+		total += GameState.money_for((node as Enemy).money_size)
+	for node in get_tree().get_nodes_in_group("arenas"):
+		var arena := node as Arena
+		for w in arena.wave_count():
+			var small := arena._wave_value_at(arena.wave_imps, w) + arena._wave_value_at(arena.wave_spitters, w)
+			total += small * GameState.money_for("small")
+			total += arena._wave_value_at(arena.wave_brutes, w) * GameState.money_for("medium")
+			total += arena._wave_value_at(arena.wave_knights, w) * GameState.money_for("big")
+	for node in get_tree().get_nodes_in_group("treasure"):
+		total += int(node.get("money"))
+	return total
+
+
+func _check_economy() -> void:
+	var most := _max_level_money()
+	var cheap := GameState.base_price("shield_weak")
+	var second := GameState.base_price("spell_weak")
+	# After level 1 each wizard can buy one cheap upgrade, but not three cheap things
+	# and not the most expensive one plus something else.
+	_check(most >= cheap * 2, "level 1 pays for one cheap upgrade each (%d >= %d)" % [most, cheap * 2])
+	_check(most < cheap * 2 + second, "level 1 can't buy three upgrades (%d < %d)" % [most, cheap * 2 + second])
+	_check(GameState.base_price("spell_strong") > GameState.base_price("shield_weak") * 2, "strong spell costs much more than a quick shield")
+
+
 func _run() -> void:
 	var fire := game.wizards[0]
 	var ice := game.wizards[1]
+	_check_economy()
 	_check(game.wizards.size() == 2, "two wizards spawned")
 	_check(fire.element == "fire" and ice.element == "ice", "wizard elements")
 	var nav := game.level.get_node("Nav") as NavigationRegion3D
@@ -176,6 +205,16 @@ func _run() -> void:
 	await get_tree().create_timer(9.0).timeout
 	var hurt := fire.is_down or ice.is_down or fire.health + ice.health < start_health
 	_check(hurt, "monsters reach and hurt the wizards")
+
+	# A restarted fight takes back the money from the failed try
+	var money_before_kill := GameState.money - arena2._earned
+	for e in arena2.get_children():
+		if e is Enemy and not e.dead:
+			e.hit(9999.0, "fire", null, 1, fire)
+			break
+	_check(arena2._earned > 0, "arena counts money from its monsters")
+	arena2.reset()
+	_check(GameState.money == money_before_kill, "arena money taken back when the fight restarts")
 
 	# Finishing the level unlocks the next magic set
 	game.finish_level()

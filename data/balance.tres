@@ -5,9 +5,9 @@
 [resource]
 script = ExtResource("1_balance")
 enemy_power_per_level = 10
-money_small = 100
-money_medium = 250
-money_big = 500
+money_small = 12
+money_medium = 40
+money_big = 120
 money_level_bonus = 0.15
 wizard_max_health = 100.0
 revive_time = 7.0
@@ -15,7 +15,10 @@ revive_health = 0.5
 regen_delay = 4.0
 regen_per_second = 4.0
 lava_damage = 20.0
-shop_base_price = 300
-shop_price_per_rank = 250
+price_spell_strong = 900
+price_spell_weak = 400
+price_shield_strong = 600
+price_shield_weak = 300
+shop_price_growth = 0.75
 shop_max_rank = 5
 upgrade_bonus_per_rank = 0.15
