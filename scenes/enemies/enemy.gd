@@ -47,6 +47,8 @@ var aim_height := 0.8
 var always_aggro := false
 
 var _state := "idle"
+var _roared := false
+var _roar_left := 0.0
 var _target: Wizard
 var _target_timer := 0.0
 var _attack_timer := 0.0
@@ -110,7 +112,7 @@ func _ready() -> void:
 	match look:
 		Look.IMP:
 			_radius = 0.42
-			_height = 1.2
+			_height = 1.45
 		Look.BRUTE:
 			_radius = 0.9
 			_height = 2.5
@@ -135,6 +137,8 @@ func _ready() -> void:
 	_slow_mat = Build.glow(Color(0.4, 0.8, 1.0), 0.6)
 	_slow_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_slow_mat.albedo_color.a = 0.35
+	if _eye_mat:
+		_eye_mat.emission_energy_multiplier = _eye_energy()
 	_build_health_bar()
 	_nav = NavigationAgent3D.new()
 	_nav.path_desired_distance = 0.8
@@ -175,27 +179,45 @@ func _eyes(y: float, z: float, spread: float, size: float, parent: Node3D = null
 
 func _build_imp() -> void:
 	var skin := _skin(body_color, 0.7)
-	var dark := Build.mat(body_color.darkened(0.5), 0.8)
-	var horn := Build.mat(Color(0.9, 0.85, 0.7), 0.5)
-	_add(Build.sphere(0.38), skin, Vector3(0, 0.62, 0), Vector3.ZERO, Vector3(1.0, 1.05, 0.9))
-	_add(Build.sphere(0.28), skin, Vector3(0, 1.05, -0.05))
-	_add(Build.cone(0.07, 0.3), horn, Vector3(-0.15, 1.3, -0.02), Vector3(0, 0, 25))
-	_add(Build.cone(0.07, 0.3), horn, Vector3(0.15, 1.3, -0.02), Vector3(0, 0, -25))
-	_add(Build.sphere(0.12), dark, Vector3(0, 0.98, -0.25), Vector3.ZERO, Vector3(1.2, 0.6, 0.6))
-	_eyes(1.1, -0.24, 0.1, 0.055)
-	_arm_l = Build.pivot(_body, Vector3(-0.36, 0.75, 0))
-	_arm_r = Build.pivot(_body, Vector3(0.36, 0.75, 0))
-	_add(Build.capsule(0.07, 0.42), skin, Vector3(0, -0.15, -0.05), Vector3(20, 0, -20), Vector3.ONE, _arm_l)
-	_add(Build.capsule(0.07, 0.42), skin, Vector3(0, -0.15, -0.05), Vector3(20, 0, 20), Vector3.ONE, _arm_r)
-	_add(Build.capsule(0.08, 0.4), dark, Vector3(-0.15, 0.2, 0))
-	_add(Build.capsule(0.08, 0.4), dark, Vector3(0.15, 0.2, 0))
-	# Little bat wings
-	var wing := Build.mat(body_color.darkened(0.3), 0.8)
-	_add(Build.box(Vector3(0.5, 0.3, 0.03)), wing, Vector3(-0.35, 0.85, 0.25), Vector3(0, 30, 20))
-	_add(Build.box(Vector3(0.5, 0.3, 0.03)), wing, Vector3(0.35, 0.85, 0.25), Vector3(0, -30, -20))
+	var dark := Build.mat(body_color.darkened(0.6), 0.8)
+	var bone := Build.mat(Color(0.9, 0.85, 0.72), 0.5)
+	var ember := Build.glow(eye_color.lerp(Color(1.0, 0.3, 0.05), 0.5), 2.5)
+	# Hunched body leaning forward, with glowing cracks and spikes down the back
+	_add(Build.capsule(0.3, 0.85), skin, Vector3(0, 0.78, 0.02), Vector3(-30, 0, 0))
+	_add(Build.box(Vector3(0.28, 0.04, 0.05)), ember, Vector3(0.02, 0.8, -0.27), Vector3(-30, 0, 20))
+	for i in 3:
+		_add(Build.cone(0.06, 0.28), bone, Vector3(0, 1.02 - i * 0.2, 0.22 + i * 0.04), Vector3(50, 0, 0))
+	# Head pushed forward: big jaw full of teeth, long horns, angry brow
+	_add(Build.sphere(0.24), skin, Vector3(0, 1.2, -0.25), Vector3.ZERO, Vector3(1.0, 0.85, 1.15))
+	_add(Build.box(Vector3(0.36, 0.1, 0.3)), dark, Vector3(0, 1.03, -0.36), Vector3(12, 0, 0))
+	for x in [-0.12, -0.04, 0.04, 0.12]:
+		_add(Build.cone(0.025, 0.1), bone, Vector3(x, 1.1, -0.48), Vector3(180, 0, 0))
+	_add(Build.cone(0.06, 0.45), bone, Vector3(-0.15, 1.42, -0.15), Vector3(40, 0, 30))
+	_add(Build.cone(0.06, 0.45), bone, Vector3(0.15, 1.42, -0.15), Vector3(40, 0, -30))
+	_add(Build.box(Vector3(0.34, 0.05, 0.08)), dark, Vector3(0, 1.31, -0.47), Vector3(-15, 0, 0))
+	_eyes(1.25, -0.47, 0.085, 0.05)
+	# Long arms with claws
+	_arm_l = Build.pivot(_body, Vector3(-0.3, 0.98, -0.1))
+	_arm_r = Build.pivot(_body, Vector3(0.3, 0.98, -0.1))
+	for arm in [_arm_l, _arm_r]:
+		_add(Build.capsule(0.06, 0.6), skin, Vector3(0, -0.22, -0.12), Vector3(30, 0, 0), Vector3.ONE, arm)
+		for x in [-0.05, 0.0, 0.05]:
+			_add(Build.cone(0.022, 0.16), bone, Vector3(x, -0.5, -0.3), Vector3(-150, 0, 0), Vector3.ONE, arm)
+	# Crouched legs and a whip tail
+	_add(Build.capsule(0.08, 0.45), dark, Vector3(-0.15, 0.22, 0.05), Vector3(-15, 0, 0))
+	_add(Build.capsule(0.08, 0.45), dark, Vector3(0.15, 0.22, 0.05), Vector3(-15, 0, 0))
+	_add(Build.cylinder(0.04, 0.7, 0.015), dark, Vector3(0, 0.45, 0.45), Vector3(60, 0, 0))
+	_add(Build.cone(0.07, 0.15), bone, Vector3(0, 0.62, 0.76), Vector3(60, 0, 0))
+	# Ragged bat wings
+	var wing := Build.mat(body_color.darkened(0.4), 0.8)
+	for side in [-1.0, 1.0]:
+		_add(Build.box(Vector3(0.55, 0.35, 0.03)), wing, Vector3(side * 0.38, 1.08, 0.3), Vector3(0, side * -30, side * -25))
+		_add(Build.box(Vector3(0.3, 0.25, 0.03)), wing, Vector3(side * 0.62, 0.9, 0.4), Vector3(0, side * -30, side * 20))
 	if ranged:
-		# Spitters carry a glowing ember in their hand.
-		Build.part(_arm_r, Build.sphere(0.1), Build.glow(Color(0.6, 1.0, 0.2), 4.0), Vector3(0, -0.4, -0.15))
+		# Spitters have a glowing poison sac in the throat and an ember in the hand.
+		var poison := Build.glow(Color(0.6, 1.0, 0.2), 4.0)
+		_add(Build.sphere(0.13), poison, Vector3(0, 1.02, -0.3), Vector3.ZERO, Vector3(1.0, 0.8, 1.0))
+		Build.part(_arm_r, Build.sphere(0.1), poison, Vector3(0, -0.5, -0.3))
 
 
 func _build_brute() -> void:
@@ -206,8 +228,17 @@ func _build_brute() -> void:
 	_add(Build.box(Vector3(0.6, 0.06, 0.1)), crack, Vector3(0.1, 1.15, -0.62), Vector3(-10, 0, -20))
 	_add(Build.sphere(0.36), stone, Vector3(0, 2.25, -0.35))
 	_eyes(2.3, -0.66, 0.13, 0.07)
-	_add(Build.cone(0.1, 0.35), Build.mat(Color(0.2, 0.18, 0.18), 0.8), Vector3(-0.3, 2.5, -0.3), Vector3(0, 0, 35))
-	_add(Build.cone(0.1, 0.35), Build.mat(Color(0.2, 0.18, 0.18), 0.8), Vector3(0.3, 2.5, -0.3), Vector3(0, 0, -35))
+	# Curved horns, a glowing mouth with teeth and spikes on the shoulders
+	var horn := Build.mat(Color(0.12, 0.1, 0.1), 0.7)
+	var bone := Build.mat(Color(0.9, 0.85, 0.72), 0.5)
+	for side in [-1.0, 1.0]:
+		_add(Build.cone(0.14, 0.5), horn, Vector3(side * 0.32, 2.48, -0.3), Vector3(0, 0, side * -60))
+		_add(Build.cone(0.08, 0.4), horn, Vector3(side * 0.6, 2.68, -0.3), Vector3(0, 0, side * -10))
+		for k in 3:
+			_add(Build.cone(0.12, 0.45), horn, Vector3(side * (0.55 + k * 0.18), 2.15 - k * 0.12, 0.1), Vector3(-20, 0, side * -40))
+	_add(Build.box(Vector3(0.4, 0.1, 0.1)), crack, Vector3(0, 2.1, -0.66))
+	for x in [-0.14, -0.05, 0.05, 0.14]:
+		_add(Build.cone(0.035, 0.14), bone, Vector3(x, 2.17, -0.7), Vector3(180, 0, 0))
 	_arm_l = Build.pivot(_body, Vector3(-0.95, 1.85, 0))
 	_arm_r = Build.pivot(_body, Vector3(0.95, 1.85, 0))
 	for arm in [_arm_l, _arm_r]:
@@ -232,8 +263,13 @@ func _build_knight() -> void:
 	_add(Build.box(Vector3(0.8, 0.8, 0.8)), dark, Vector3(0, 3.4, -0.05))
 	_add(Build.box(Vector3(0.6, 0.08, 0.05)), red, Vector3(0, 3.45, -0.46))
 	_eye_mat = red
-	_add(Build.cone(0.14, 0.7), Build.mat(Color(0.9, 0.85, 0.75), 0.5), Vector3(-0.5, 3.85, 0), Vector3(0, 0, 40))
-	_add(Build.cone(0.14, 0.7), Build.mat(Color(0.9, 0.85, 0.75), 0.5), Vector3(0.5, 3.85, 0), Vector3(0, 0, -40))
+	var bone := Build.mat(Color(0.9, 0.85, 0.75), 0.5)
+	for side in [-1.0, 1.0]:
+		# Big curled horns and rows of spikes on the shoulder plates
+		_add(Build.cone(0.2, 0.9), bone, Vector3(side * 0.6, 3.9, 0), Vector3(0, 0, side * -55))
+		_add(Build.cone(0.12, 0.6), bone, Vector3(side * 1.05, 4.35, 0), Vector3(0, 0, side * -5))
+		for k in 3:
+			_add(Build.cone(0.1, 0.5), dark, Vector3(side * 0.95, 3.25, -0.3 + k * 0.3), Vector3(0, 0, side * -25))
 	_add(Build.box(Vector3(0.45, 1.2, 0.5)), dark, Vector3(-0.4, 0.6, 0))
 	_add(Build.box(Vector3(0.45, 1.2, 0.5)), dark, Vector3(0.4, 0.6, 0))
 	# Cape
@@ -369,6 +405,12 @@ func _think(delta: float) -> Vector3:
 	match _state:
 		"idle":
 			if always_aggro or dist < aggro_range:
+				_start_roar()
+			return Vector3.ZERO
+		"roar":
+			_face(to_target, delta, 10.0)
+			_roar_left -= delta
+			if _roar_left <= 0.0:
 				_state = "chase"
 			return Vector3.ZERO
 		"windup":
@@ -383,6 +425,8 @@ func _think(delta: float) -> Vector3:
 	# Chasing
 	if not always_aggro and dist > aggro_range * 2.5:
 		_state = "idle"
+		if _eye_mat:
+			_eye_mat.emission_energy_multiplier = _eye_energy()
 		return Vector3.ZERO
 	if _attack_timer <= 0.0:
 		var choice := _choose_attack(dist)
@@ -416,6 +460,44 @@ func _strafe(to_target: Vector3, delta: float) -> Vector3:
 func _wants_charge(dist: float, head: Vector3) -> bool:
 	return charge_speed > 0.0 and _charge_timer <= 0.0 and dist > 5.0 and dist < 16.0 \
 		and _can_see(head, _target_chest())
+
+
+## The first time a monster sees the wizards it rears up and roars, with
+## blazing eyes. Big monsters shake the screen of wizards close by.
+func _start_roar() -> void:
+	if _roared:
+		_state = "chase"
+		return
+	_roared = true
+	_state = "roar"
+	_roar_left = 0.45 if look == Look.IMP else 0.9
+	if _eye_mat:
+		_eye_mat.emission_energy_multiplier = 16.0
+	var tw := create_tween()
+	tw.tween_property(_body, "scale", Vector3(1.15, 1.2, 1.15), _roar_left * 0.4).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(_body, "scale", Vector3.ONE, _roar_left * 0.6)
+	tw.tween_callback(func() -> void:
+		if _eye_mat and _state != "windup":
+			_eye_mat.emission_energy_multiplier = _eye_energy())
+	if _arm_l and _arm_r:
+		for arm in [_arm_l, _arm_r]:
+			var arm_tw := create_tween()
+			arm_tw.tween_property(arm, "rotation:x", -2.4, _roar_left * 0.4)
+			arm_tw.tween_property(arm, "rotation:x", 0.0, _roar_left * 0.6)
+	if look != Look.IMP:
+		for w in get_tree().get_nodes_in_group("wizards"):
+			var wiz := w as Wizard
+			if wiz and wiz.global_position.distance_to(global_position) < 18.0:
+				if wiz.camera_rig:
+					wiz.camera_rig.shake(0.6 if is_boss else 0.35)
+				PlayerInput.rumble(wiz.player_index, 0.5, 0.3 if is_boss else 0.1, 0.4)
+
+
+## Eyes are dim while a monster lurks and blaze once it hunts.
+func _eye_energy() -> float:
+	if _enraged:
+		return 10.0
+	return 1.5 if _state == "idle" else 6.0
 
 
 func _choose_attack(dist: float) -> String:
@@ -467,7 +549,7 @@ func _slam_radius() -> float:
 
 func _do_attack() -> void:
 	if _eye_mat:
-		_eye_mat.emission_energy_multiplier = 6.0 if not _enraged else 10.0
+		_eye_mat.emission_energy_multiplier = _eye_energy()
 	if _target == null:
 		return
 	var to_target := _target.global_position - global_position
@@ -705,8 +787,10 @@ func hit(amount: float, element: String, spell: SpellData, stacks: int, source: 
 			if _slow_stacks >= spell.freeze_stacks and _freeze_immune <= 0.0:
 				_freeze(spell.freeze_time * (0.5 if is_boss else 1.0))
 		_refresh_overlay()
-	if _state == "idle":
+	if _state == "idle" or _state == "roar":
 		_state = "chase"
+		if _eye_mat:
+			_eye_mat.emission_energy_multiplier = _eye_energy()
 		if source is Wizard:
 			_target = source as Wizard
 	# Only big hits make imps flinch, so fast spells can't keep them stuck.

@@ -240,6 +240,7 @@ func _run() -> void:
 	ice.teleport(Vector3(0, 0.3, -20))
 	fire.teleport(Vector3(0, 0.3, -46))
 	var imp := _spawn("res://scenes/enemies/imp.tscn", Vector3(0, 0, -52))
+	_check(await _wait_for(func() -> bool: return imp._state == "roar", 30), "monster roars when it spots a wizard")
 	_check(await _wait_for(func() -> bool: return imp._attack_kind == "melee" and imp._dash_left > 0.0, 300), "imp lunges at a wizard")
 	imp.die()
 	var brute := _spawn("res://scenes/enemies/brute.tscn", Vector3(0, 0, -60))

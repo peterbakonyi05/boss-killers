@@ -84,48 +84,76 @@ func element_color() -> Color:
 
 # --- Model -------------------------------------------------------------------
 
+## A hooded battle mage: armour, glowing eyes under the hood, cape and a big staff.
 func _build_model() -> void:
 	var fire := element == "fire"
-	var robe := Color(0.55, 0.08, 0.05) if fire else Color(0.08, 0.2, 0.55)
-	var robe_dark := robe.darkened(0.35)
+	var cloth := Color(0.55, 0.08, 0.05) if fire else Color(0.08, 0.2, 0.55)
+	var cloth_dark := cloth.darkened(0.4)
+	var metal := Color(0.24, 0.17, 0.15) if fire else Color(0.32, 0.38, 0.46)
 	var trim := element_color()
-	var skin := Color(0.96, 0.78, 0.64) if fire else Color(0.85, 0.66, 0.52)
-	var hair := Color(0.75, 0.25, 0.08) if fire else Color(0.9, 0.95, 1.0)
 	_model = Node3D.new()
 	add_child(_model)
 	_body_pivot = Build.pivot(_model)
-	var robe_mat := Build.mat(robe, 0.9)
 	var p := _body_pivot
-	_model_meshes.append(Build.part(p, Build.cylinder(0.5, 1.15, 0.24), robe_mat, Vector3(0, 0.575, 0)))
-	_model_meshes.append(Build.part(p, Build.cylinder(0.52, 0.08), Build.glow(trim, 1.5), Vector3(0, 0.05, 0)))
-	_model_meshes.append(Build.part(p, Build.cylinder(0.3, 0.08), Build.glow(trim, 1.2), Vector3(0, 0.98, 0)))
-	_model_meshes.append(Build.part(p, Build.sphere(0.3), Build.mat(robe_dark, 0.9), Vector3(0, 1.2, 0), Vector3.ZERO, Vector3(1.1, 0.8, 0.85)))
-	# Head and face
-	_model_meshes.append(Build.part(p, Build.sphere(0.23), Build.mat(skin, 0.7), Vector3(0, 1.52, 0)))
-	_model_meshes.append(Build.part(p, Build.sphere(0.245), Build.mat(hair, 0.9), Vector3(0, 1.57, 0.05), Vector3.ZERO, Vector3(1.0, 0.9, 1.0)))
-	var eye_mat := Build.mat(Color(0.08, 0.06, 0.06), 0.3)
-	Build.part(p, Build.sphere(0.035), eye_mat, Vector3(-0.08, 1.55, -0.2))
-	Build.part(p, Build.sphere(0.035), eye_mat, Vector3(0.08, 1.55, -0.2))
-	# Hat
-	var hat_mat := Build.mat(robe_dark, 0.85)
-	_model_meshes.append(Build.part(p, Build.cylinder(0.44, 0.05), hat_mat, Vector3(0, 1.68, 0)))
-	_model_meshes.append(Build.part(p, Build.cone(0.27, 0.7), hat_mat, Vector3(0, 2.02, 0.06), Vector3(-14, 0, 0)))
-	Build.part(p, Build.cylinder(0.28, 0.06), Build.glow(trim, 2.0), Vector3(0, 1.74, 0))
-	# Arms
-	var left_arm := Build.pivot(p, Vector3(-0.32, 1.25, 0))
-	_model_meshes.append(Build.part(left_arm, Build.capsule(0.09, 0.62), robe_mat, Vector3(0, -0.25, 0), Vector3(0, 0, -12)))
-	_arm_right = Build.pivot(p, Vector3(0.32, 1.25, 0))
-	_model_meshes.append(Build.part(_arm_right, Build.capsule(0.09, 0.62), robe_mat, Vector3(0, -0.25, 0), Vector3(0, 0, 12)))
-	# Staff with a glowing orb
-	var staff := Build.pivot(_arm_right, Vector3(0.1, -0.45, -0.12))
-	Build.part(staff, Build.cylinder(0.035, 1.6), Build.mat(Color(0.35, 0.2, 0.1), 0.8), Vector3(0, 0.2, 0))
+	var cloth_mat := Build.mat(cloth, 0.85)
+	var dark_mat := Build.mat(cloth_dark, 0.9)
+	var metal_mat := Build.mat(metal, 0.35, 0.85)
+	var glow_mat := Build.glow(trim, 2.0)
+	var add := func(mesh: Mesh, mat: Material, pos: Vector3, rot := Vector3.ZERO, scl := Vector3.ONE, parent: Node3D = p) -> MeshInstance3D:
+		var mi := Build.part(parent, mesh, mat, pos, rot, scl)
+		_model_meshes.append(mi)
+		return mi
+	# Boots, legs and a long split coat
+	for side in [-1.0, 1.0]:
+		add.call(Build.capsule(0.11, 0.75), dark_mat, Vector3(side * 0.14, 0.38, 0))
+		add.call(Build.box(Vector3(0.2, 0.18, 0.32)), metal_mat, Vector3(side * 0.14, 0.09, -0.05))
+	add.call(Build.cylinder(0.4, 0.7, 0.3), cloth_mat, Vector3(0, 0.62, 0.02))
+	add.call(Build.cylinder(0.41, 0.07), glow_mat, Vector3(0, 0.3, 0.02))
+	# Broad chest with an armour plate and a glowing rune belt
+	add.call(Build.capsule(0.3, 0.75), cloth_mat, Vector3(0, 1.15, 0), Vector3.ZERO, Vector3(1.3, 1.0, 0.85))
+	add.call(Build.box(Vector3(0.5, 0.42, 0.1)), metal_mat, Vector3(0, 1.22, -0.24))
+	add.call(Build.box(Vector3(0.08, 0.3, 0.02)), glow_mat, Vector3(0, 1.22, -0.3))
+	add.call(Build.cylinder(0.34, 0.09), glow_mat, Vector3(0, 0.9, 0))
+	# Shoulder plates with spikes (flame tips for fire, crystal tips for ice)
+	for side in [-1.0, 1.0]:
+		add.call(Build.sphere(0.2), metal_mat, Vector3(side * 0.42, 1.45, 0), Vector3.ZERO, Vector3(1.25, 0.75, 1.15))
+		add.call(Build.cone(0.07, 0.3), glow_mat, Vector3(side * 0.5, 1.62, 0), Vector3(0, 0, side * -25))
+	# Hooded head: no face, just two glowing eyes and a mask
+	add.call(Build.sphere(0.2), Build.mat(Color(0.03, 0.02, 0.02), 0.9), Vector3(0, 1.68, -0.02))
+	add.call(Build.sphere(0.25), dark_mat, Vector3(0, 1.72, 0.04), Vector3.ZERO, Vector3(1.0, 1.05, 1.1))
+	add.call(Build.cone(0.14, 0.35), dark_mat, Vector3(0, 1.9, 0.2), Vector3(55, 0, 0))
+	add.call(Build.torus(0.2, 0.25), glow_mat, Vector3(0, 1.7, -0.1), Vector3(80, 0, 0), Vector3(1.0, 1.0, 1.1))
+	add.call(Build.box(Vector3(0.3, 0.12, 0.08)), metal_mat, Vector3(0, 1.6, -0.19))
+	var eye_mat := Build.glow(trim.lightened(0.4), 5.0)
+	Build.part(p, Build.box(Vector3(0.07, 0.03, 0.02)), eye_mat, Vector3(-0.07, 1.7, -0.2), Vector3(0, 0, -12))
+	Build.part(p, Build.box(Vector3(0.07, 0.03, 0.02)), eye_mat, Vector3(0.07, 1.7, -0.2), Vector3(0, 0, 12))
+	# Cape
+	add.call(Build.box(Vector3(0.75, 1.25, 0.05)), dark_mat, Vector3(0, 0.95, 0.3), Vector3(10, 0, 0))
+	add.call(Build.box(Vector3(0.77, 0.07, 0.07)), glow_mat, Vector3(0, 0.34, 0.4), Vector3(10, 0, 0))
+	# Arms with metal gauntlets
+	var left_arm := Build.pivot(p, Vector3(-0.42, 1.38, 0))
+	add.call(Build.capsule(0.1, 0.6), cloth_mat, Vector3(0, -0.25, 0), Vector3(0, 0, -10), Vector3.ONE, left_arm)
+	add.call(Build.cylinder(0.11, 0.2), metal_mat, Vector3(-0.04, -0.5, 0), Vector3(0, 0, -10), Vector3.ONE, left_arm)
+	_arm_right = Build.pivot(p, Vector3(0.42, 1.38, 0))
+	add.call(Build.capsule(0.1, 0.6), cloth_mat, Vector3(0, -0.25, 0), Vector3(0, 0, 10), Vector3.ONE, _arm_right)
+	add.call(Build.cylinder(0.11, 0.2), metal_mat, Vector3(0.04, -0.5, 0), Vector3(0, 0, 10), Vector3.ONE, _arm_right)
+	# Battle staff: metal shaft with a spike at the bottom and a glowing head
+	var staff := Build.pivot(_arm_right, Vector3(0.1, -0.5, -0.12))
+	Build.part(staff, Build.cylinder(0.04, 1.9), metal_mat, Vector3(0, 0.2, 0))
+	Build.part(staff, Build.cone(0.05, 0.25), metal_mat, Vector3(0, -0.85, 0), Vector3(180, 0, 0))
 	_orb_mat = Build.glow(trim, 3.0)
 	if fire:
-		Build.part(staff, Build.sphere(0.12), _orb_mat, Vector3(0, 1.05, 0))
+		Build.part(staff, Build.sphere(0.14), _orb_mat, Vector3(0, 1.3, 0))
+		for k in 3:
+			var claw := Build.pivot(staff, Vector3(0, 1.15, 0))
+			claw.rotation.y = k * TAU / 3.0
+			Build.part(claw, Build.cone(0.035, 0.35), metal_mat, Vector3(0.13, 0.15, 0), Vector3(0, 0, 20))
 	else:
-		Build.part(staff, Build.cone(0.1, 0.32), _orb_mat, Vector3(0, 1.1, 0))
-		Build.part(staff, Build.cone(0.1, 0.2), _orb_mat, Vector3(0, 0.92, 0), Vector3(180, 0, 0))
-	_orb_light = Build.light(staff, trim, 1.4, 5.0, Vector3(0, 1.05, 0))
+		Build.part(staff, Build.cone(0.12, 0.45), _orb_mat, Vector3(0, 1.4, 0))
+		Build.part(staff, Build.cone(0.12, 0.25), _orb_mat, Vector3(0, 1.08, 0), Vector3(180, 0, 0))
+		Build.part(staff, Build.cone(0.05, 0.25), _orb_mat, Vector3(0.12, 1.25, 0), Vector3(0, 0, -35))
+		Build.part(staff, Build.cone(0.05, 0.25), _orb_mat, Vector3(-0.12, 1.25, 0), Vector3(0, 0, 35))
+	_orb_light = Build.light(staff, trim, 1.4, 5.0, Vector3(0, 1.3, 0))
 	_hurt_mat = Build.glow(Color(1, 0.2, 0.2), 1.5)
 	_hurt_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_hurt_mat.albedo_color.a = 0.0
@@ -209,6 +237,9 @@ func _animate(delta: float, speed: float) -> void:
 		_walk_time += delta * speed * 1.6
 	_body_pivot.position.y = absf(sin(_walk_time)) * 0.06
 	_body_pivot.rotation.z = sin(_walk_time) * 0.04
+	# Lean into the run.
+	var lean := -0.15 * clampf(speed / SPEED, 0.0, 1.0) if is_on_floor() else 0.0
+	_body_pivot.rotation.x = lerpf(_body_pivot.rotation.x, lean, 1.0 - exp(-10.0 * delta))
 	_arm_right.rotation.x = lerpf(_arm_right.rotation.x, -1.2 if _aim_hold > 0.0 else 0.0, 1.0 - exp(-12.0 * delta))
 	var glow := 3.0 + _aim_hold * 6.0
 	_orb_mat.emission_energy_multiplier = glow
