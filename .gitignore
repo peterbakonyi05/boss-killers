@@ -1,0 +1,5 @@
+# Godot 4 cache
+.godot/
+/android/
+*.tmp
+.DS_Store
