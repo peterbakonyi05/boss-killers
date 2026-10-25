@@ -1,0 +1,92 @@
+# Boss Killers
+
+A split-screen co-op action game for two players, made with **Godot 4.7**.
+One player is the **Fire Wizard**, the other the **Ice Wizard**. Together they
+fight through the underworld, solve riddles, find secrets and beat bosses.
+
+Graphics are placeholders built from simple shapes. The focus right now is
+gameplay, behaviour and balance; real art comes last.
+
+## Play
+
+1. Install Godot 4.7 (the project uses Forward+).
+2. Pair two PS5 DualSense controllers (Bluetooth) or use the keyboard.
+3. Open the project in Godot and press Play, or run:
+
+   ```sh
+   /Applications/Godot.app/Contents/MacOS/Godot --path .
+   ```
+
+On the title screen each player presses **Cross** (or their jump key) to join.
+
+### Controls
+
+| Action        | Controller | Player 1 keys | Player 2 keys |
+|---------------|------------|---------------|---------------|
+| Move          | Left stick | WASD          | Arrows        |
+| Camera        | Right stick| Q / Z         | , / .         |
+| Jump          | Cross      | Space         | Right Shift   |
+| Interact      | Square     | E             | Enter         |
+| Strong spell  | R2         | F             | K             |
+| Fast spell    | R1         | G             | L             |
+| Big shield (hold) | L2     | R             | I             |
+| Quick shield  | L1         | T             | O             |
+| Pause         | Options    | Esc           | P             |
+| Back          | Circle     | Backspace     | Delete        |
+| Riddle answers| D-pad ← ↑ →| 1 2 3         | 8 9 0         |
+
+Menus: D-pad to choose, Cross to press. In the shop, Options starts the next level.
+
+## How the game works
+
+- **Teamwork puzzles:** the Ice Wizard freezes lava into bridges, the Fire Wizard
+  melts ice doors. Riddle stones give the Riddle Rune; the boss arena gives the Key.
+  Both are needed to open the exit portal, and both wizards must step in.
+- **Fights:** path monsters, and arenas that lock their gates and send waves.
+  Monsters telegraph their attacks (imps lunge, brutes and bosses charge, spitters
+  shoot). Fire burns, ice slows and freezes, and fire shatters frozen monsters.
+- **Falling:** a fallen wizard gets back up after a few seconds. If both fall,
+  the team goes back to the last checkpoint.
+- **Money and shop:** monsters and treasure chests give team money. Between levels
+  the shop sells upgrades; bigger magic costs more, so the team saves up.
+- **Secrets:** cracked walls, hidden ledges and secret ice walls hide treasure.
+  The level complete screen shows how many were found.
+- Progress is saved to `user://save.json` after each level and after shopping.
+
+Only Level 1 is built so far. Later level numbers replay the newest built
+layout with stronger monsters.
+
+## Tests
+
+```sh
+# Gameplay smoke test (headless, ~50 s)
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tests/smoke_test.tscn
+# Menus with simulated controller presses (headless, a few seconds)
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . res://tests/menu_test.tscn
+# Screenshots (needs a window; --always-on-top or macOS may stall it)
+/Applications/Godot.app/Contents/MacOS/Godot --always-on-top --path . res://tests/screenshots.tscn -- /tmp/shots
+/Applications/Godot.app/Contents/MacOS/Godot --always-on-top --path . res://tests/menu_screenshots.tscn -- /tmp/shots
+```
+
+Each test prints `PASS`/`FAIL` lines and exits with code 1 on failure.
+
+## Project layout
+
+```
+autoload/       GameState (money, level, saves) and PlayerInput (both players' controls)
+data/           Balance numbers, level settings, spell sets, riddles (.tres / .json)
+scenes/
+  game.*        One level in split screen: wizards, checkpoints, items, finishing
+  main_menu.*   Title screen with player join
+  wizard/       Player wizard and camera
+  enemies/      One monster script, one scene per monster type
+  magic/        Projectiles and shields
+  level_parts/  Reusable level pieces (arena, gate, lava, doors, chests, ...)
+  levels/       Level layouts
+  ui/           HUD, overlay, pause, level complete, shop
+scripts/        Shared helpers: Build (shapes), FX (particles), UIUtil, data classes
+tests/          Headless tests and screenshot scripts
+```
+
+Most numbers to tweak live in `data/balance.tres`, `data/spells/*.tres` and the
+monster scenes in `scenes/enemies/`.
